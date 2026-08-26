@@ -1,0 +1,30 @@
+category = "Multimedia & Entretenimiento"
+description = "Reproductores de audio, video y suites de diseño"
+
+[[app]]
+name = "Spotify"
+pkg = "spotify"
+source = "aur"
+desc = "Servicio de música en streaming"
+icon = "spotify"
+
+[[app]]
+name = "MPV"
+pkg = "mpv"
+source = "pacman"
+desc = "Reproductor de video de alto rendimiento para terminal y GUI"
+icon = "mpv"
+
+[[app]]
+name = "OBS Studio"
+pkg = "obs-studio"
+source = "pacman"
+desc = "Grabación de pantalla y transmisiones en vivo"
+icon = "obs"
+
+[[app]]
+name = "GIMP"
+pkg = "gimp"
+source = "pacman"
+desc = "Editor de imágenes profesional de código abierto"
+icon = "gimp"

@@ -1,0 +1,19 @@
+[meta]
+name = "Catppuccin Mocha"
+author = "Kaizen"
+description = "Soothing pastel theme for high productivity"
+
+[colors]
+bg       = "#1e1e2e"
+bg_alt   = "#181825"
+fg       = "#cdd6f4"
+fg_alt   = "#6c7086"
+accent   = "#cba6f7"
+accent2  = "#f5e0dc"
+red      = "#f38ba8"
+green    = "#a6e3a1"
+yellow   = "#f9e2af"
+blue     = "#89b4fa"
+purple   = "#cba6f7"
+cyan     = "#94e2d5"
+border   = "#cba6f7"

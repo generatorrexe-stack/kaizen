@@ -1,0 +1,37 @@
+category = "Seguridad & Hacking"
+description = "Herramientas de pentesting, análisis de red y auditoría"
+
+[[app]]
+name = "Wireshark"
+pkg = "wireshark-qt"
+source = "pacman"
+desc = "Analizador de protocolos de red e inspección de tráfico"
+icon = "wireshark"
+
+[[app]]
+name = "Burp Suite"
+pkg = "burpsuite"
+source = "aur"
+desc = "Proxy interceptor avanzado para auditoría de aplicaciones web"
+icon = "burpsuite"
+
+[[app]]
+name = "Nmap"
+pkg = "nmap"
+source = "pacman"
+desc = "Escáner de red y auditoría de puertos"
+icon = "nmap"
+
+[[app]]
+name = "Metasploit"
+pkg = "metasploit"
+source = "pacman"
+desc = "Framework de desarrollo y ejecución de exploits"
+icon = "metasploit"
+
+[[app]]
+name = "John the Ripper"
+pkg = "john"
+source = "pacman"
+desc = "Auditor y recuperador de contraseñas"
+icon = "security-high"

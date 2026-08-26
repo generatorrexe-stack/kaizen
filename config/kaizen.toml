@@ -1,0 +1,22 @@
+[kaizen]
+version = "1.0.0"
+active_theme = "cyberpunk-neon"
+active_layout = "top"
+active_wallpaper = ""
+
+[paths]
+base_dir = "~/.config/kaizen"
+generated_dir = "~/.config/kaizen/generated"
+themes_dir = "~/.config/kaizen/themes"
+templates_dir = "~/.config/kaizen/templates"
+layouts_dir = "~/.config/kaizen/layouts"
+wallpapers_dir = "~/.config/kaizen/wallpapers/library"
+thumbnails_dir = "~/.config/kaizen/wallpapers/thumbnails"
+packages_dir = "~/.config/kaizen/packages"
+
+[reloads]
+waybar = "killall -9 waybar; waybar &"
+hyprland = "hyprctl reload"
+swaync = "swaync-client -R"
+kitty = "killall -USR1 kitty"
+gtk = "gsettings set org.gnome.desktop.interface gtk-theme '' && gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'"

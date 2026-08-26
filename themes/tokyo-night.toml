@@ -1,0 +1,19 @@
+[meta]
+name = "Tokyo Night"
+author = "Kaizen"
+description = "Clean Japanese night skyline theme"
+
+[colors]
+bg       = "#1a1b26"
+bg_alt   = "#24283b"
+fg       = "#c0caf5"
+fg_alt   = "#565f89"
+accent   = "#7aa2f7"
+accent2  = "#bb9af7"
+red      = "#f7768e"
+green    = "#9ece6a"
+yellow   = "#e0af68"
+blue     = "#7aa2f7"
+purple   = "#bb9af7"
+cyan     = "#7dcfff"
+border   = "#7aa2f7"

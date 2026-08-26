@@ -1,0 +1,10 @@
+{
+    "name": "Left Dock Bar",
+    "position": "left",
+    "layer": "top",
+    "width": 44,
+    "margin-top": 10,
+    "margin-left": 8,
+    "margin-right": 0,
+    "margin-bottom": 10
+}

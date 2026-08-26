@@ -1,0 +1,10 @@
+{
+    "name": "Bottom Bar",
+    "position": "bottom",
+    "layer": "top",
+    "height": 36,
+    "margin-top": 0,
+    "margin-left": 10,
+    "margin-right": 10,
+    "margin-bottom": 8
+}

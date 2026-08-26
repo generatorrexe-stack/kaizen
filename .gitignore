@@ -1,0 +1,7 @@
+generated/
+state/
+__pycache__/
+*.pyc
+.venv/
+wallpapers/library/
+wallpapers/thumbnails/

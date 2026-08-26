@@ -1,0 +1,19 @@
+[meta]
+name = "Dracula"
+author = "Kaizen"
+description = "Vampiric dark theme with purple and pink accents"
+
+[colors]
+bg       = "#282a36"
+bg_alt   = "#44475a"
+fg       = "#f8f8f2"
+fg_alt   = "#6272a4"
+accent   = "#bd93f9"
+accent2  = "#ff79c6"
+red      = "#ff5555"
+green    = "#50fa7b"
+yellow   = "#f1fa8c"
+blue     = "#8be9fd"
+purple   = "#bd93f9"
+cyan     = "#8be9fd"
+border   = "#bd93f9"

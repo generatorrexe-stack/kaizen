@@ -1,0 +1,10 @@
+[meta]
+title = "Kaizen Software Store"
+description = "Curated software suite for Arch Linux & Hyprland"
+categories = [
+    "browsers",
+    "dev-tools",
+    "media",
+    "hacking-tools",
+    "productivity"
+]

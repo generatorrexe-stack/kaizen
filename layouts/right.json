@@ -1,0 +1,10 @@
+{
+    "name": "Right Dock Bar",
+    "position": "right",
+    "layer": "top",
+    "width": 44,
+    "margin-top": 10,
+    "margin-left": 0,
+    "margin-right": 8,
+    "margin-bottom": 10
+}

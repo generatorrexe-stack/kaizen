@@ -1,0 +1,19 @@
+[meta]
+name = "Cyberpunk Neon"
+author = "Kaizen"
+description = "High contrast futuristic neon cyberpunk theme"
+
+[colors]
+bg       = "#0a0e1e"
+bg_alt   = "#12182e"
+fg       = "#e0e0ff"
+fg_alt   = "#8c9bc8"
+accent   = "#ff2d95"
+accent2  = "#00e5ff"
+red      = "#ff0040"
+green    = "#00ff9f"
+yellow   = "#ffea00"
+blue     = "#00a2ff"
+purple   = "#b026ff"
+cyan     = "#00e5ff"
+border   = "#ff2d95"

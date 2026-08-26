@@ -1,0 +1,30 @@
+category = "Desarrollo"
+description = "Herramientas esenciales para programación y sistemas"
+
+[[app]]
+name = "Visual Studio Code"
+pkg = "visual-studio-code-bin"
+source = "aur"
+desc = "Editor de código ligero y extensible de Microsoft"
+icon = "code"
+
+[[app]]
+name = "Neovim"
+pkg = "neovim"
+source = "pacman"
+desc = "Editor de texto en terminal ultra rápido y extensible"
+icon = "nvim"
+
+[[app]]
+name = "Docker"
+pkg = "docker"
+source = "pacman"
+desc = "Plataforma de contenedores para desarrollo y despliegue"
+icon = "docker"
+
+[[app]]
+name = "Postman"
+pkg = "postman-bin"
+source = "aur"
+desc = "Plataforma completa para pruebas y desarrollo de APIs"
+icon = "postman"

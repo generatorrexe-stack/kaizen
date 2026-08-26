@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""Kaizen — Hyprland Customization Ecosystem CLI"""
+import os
+import sys
+
+# Absolute base directory — always ~/.local/share/kaizen
+KAIZEN_BASE = os.path.expanduser("~/.local/share/kaizen")
+sys.path.insert(0, KAIZEN_BASE)
+
+from engine.theme_engine import ThemeEngine
+from engine.layout_engine import LayoutEngine
+from engine.wallpaper_engine import WallpaperEngine
+from engine.package_engine import PackageEngine
+from engine.matugen_adapter import MatugenAdapter
+
+def print_help():
+    print("""
+🏯 KAIZEN — Hyprland Customization Ecosystem
+
+Usage:
+  kaizen apply theme <theme-id>            Apply color palette theme
+  kaizen apply layout <layout-id>          Apply Waybar layout preset (top|bottom|left|right)
+  kaizen apply previous                    Rollback to previous theme
+  kaizen wallpaper set <image-path>        Set wallpaper with swww transition
+  kaizen wallpaper add <image-path>        Add wallpaper to library
+  kaizen wallpaper generate-theme <img>    Auto-generate theme from wallpaper
+  kaizen package list                      List software catalog status
+  kaizen package install <pkg> [source]    Install software package (pacman|aur)
+  kaizen package remove <pkg>              Remove software package
+  kaizen rollback                          Restore configs from last auto-backup
+  kaizen doctor                            Run diagnostics on your setup
+  kaizen gui                               Launch Kaizen Hub GTK4 GUI
+""")
+
+def main():
+    if len(sys.argv) < 2:
+        print_help()
+        sys.exit(0)
+
+    cmd = sys.argv[1]
+
+    if cmd == "apply":
+        if len(sys.argv) < 4 and not (len(sys.argv) == 3 and sys.argv[2] == "previous"):
+            print("Usage: kaizen apply <theme|layout> <name>")
+            sys.exit(1)
+        sub = sys.argv[2]
+        if sub == "previous":
+            engine = ThemeEngine(KAIZEN_BASE)
+            engine.apply_previous()
+        elif sub == "theme":
+            target = sys.argv[3]
+            silent = "--silent" in sys.argv
+            engine = ThemeEngine(KAIZEN_BASE)
+            engine.apply_theme(target, silent=silent)
+        elif sub == "layout":
+            target = sys.argv[3]
+            engine = LayoutEngine(KAIZEN_BASE)
+            engine.apply_layout(target)
+        else:
+            print(f"Unknown apply target: {sub}")
+            sys.exit(1)
+
+    elif cmd == "wallpaper":
+        if len(sys.argv) < 4:
+            print("Usage: kaizen wallpaper <set|add|generate-theme> <path>")
+            sys.exit(1)
+        sub = sys.argv[2]
+        target = sys.argv[3]
+        if sub == "set":
+            engine = WallpaperEngine(KAIZEN_BASE)
+            engine.set_wallpaper(target)
+        elif sub == "add":
+            engine = WallpaperEngine(KAIZEN_BASE)
+            engine.add_wallpaper(target)
+        elif sub == "generate-theme":
+            adapter = MatugenAdapter(KAIZEN_BASE)
+            theme_name = adapter.generate_theme_from_image(target)
+            print(f"Applying new theme '{theme_name}'...")
+            t_engine = ThemeEngine(KAIZEN_BASE)
+            t_engine.apply_theme(theme_name)
+
+    elif cmd == "package":
+        if len(sys.argv) < 3:
+            print("Usage: kaizen package <list|install|remove> [pkg_name]")
+            sys.exit(1)
+        sub = sys.argv[2]
+        p_engine = PackageEngine(KAIZEN_BASE)
+        if sub == "list":
+            catalog = p_engine.get_catalog()
+            for cat, data in catalog.items():
+                print(f"\n📦 {cat} ({data['description']})")
+                for app in data['apps']:
+                    status = "✅ Installed" if app['installed'] else "❌ Not installed"
+                    print(f"  - {app['name']} ({app['pkg']}) [{app['source']}]: {status}")
+        elif sub == "install":
+            if len(sys.argv) < 4:
+                print("Usage: kaizen package install <pkg_name> [pacman|aur]")
+                sys.exit(1)
+            pkg = sys.argv[3]
+            source = sys.argv[4] if len(sys.argv) > 4 else "pacman"
+            p_engine.install_package(pkg, source)
+        elif sub == "remove":
+            if len(sys.argv) < 4:
+                print("Usage: kaizen package remove <pkg_name>")
+                sys.exit(1)
+            p_engine.remove_package(sys.argv[3])
+
+    elif cmd == "rollback":
+        engine = ThemeEngine(KAIZEN_BASE)
+        engine.rollback()
+
+    elif cmd == "doctor":
+        from engine.doctor import run_doctor
+        run_doctor(KAIZEN_BASE)
+
+    elif cmd == "gui":
+        print("🚀 Launching Kaizen Hub...")
+        from gui.app import launch_gui
+        launch_gui(KAIZEN_BASE)
+
+    else:
+        print_help()
+
+if __name__ == "__main__":
+    main()
