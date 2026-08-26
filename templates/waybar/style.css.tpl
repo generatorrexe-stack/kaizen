@@ -1,4 +1,3 @@
-/* Kaizen Template - Waybar Styling (Based on User's Premium Glassmorphism Pill Layout) */
 * {
     font-family: "JetBrainsMono Nerd Font";
     font-size: 13px;
@@ -11,49 +10,42 @@ window#waybar {
     color: {{fg}};
 }
 
-/* GRUPOS */
 #group-left,
 #group-right {
     background: transparent;
 }
 
-/* ARCH LOGO */
 #custom-arch {
     color: {{accent}};
     font-size: 21px;
     padding: 0 14px;
     margin-right: 6px;
-
-    background: {{bg_alt}};
+    background: rgba(8, 8, 18, 0.94);
     border: 1px solid {{accent}};
     border-radius: 10px;
     box-shadow: 0 0 10px {{accent}};
 }
 
 #custom-arch:hover {
-    color: {{accent2}};
-    background: {{bg}};
-    border-color: {{accent2}};
+    color: {{accent}};
+    background: rgba(255, 45, 85, 0.12);
+    border-color: {{accent}};
 }
 
-/* MPRIS */
 #mpris {
     color: {{accent}};
     padding: 0 13px;
     margin-right: 6px;
-
-    background: {{bg_alt}};
+    background: rgba(8, 8, 18, 0.94);
     border: 1px solid {{accent}};
     border-radius: 10px;
 }
 
-/* WINDOW */
 #window {
     color: {{fg}};
     padding: 0 13px;
-
-    background: {{bg_alt}};
-    border: 1px solid {{accent2}};
+    background: rgba(8, 8, 18, 0.94);
+    border: 1px solid {{blue}};
     border-radius: 10px;
 }
 
@@ -61,9 +53,8 @@ window#waybar {
     color: transparent;
 }
 
-/* WORKSPACES */
 #workspaces {
-    background: {{bg_alt}};
+    background: rgba(8, 8, 18, 0.94);
     border: 1px solid {{accent2}};
     border-radius: 10px;
     padding: 0 5px;
@@ -80,21 +71,20 @@ window#waybar {
 
 #workspaces button.active {
     color: {{accent2}};
-    background: {{bg}};
+    background: rgba(0, 229, 255, 0.13);
     border: 1px solid {{accent2}};
 }
 
 #workspaces button:hover {
-    color: {{fg}};
-    background: {{bg}};
+    color: #ffffff;
+    background: rgba(0, 229, 255, 0.08);
 }
 
 #workspaces button.urgent {
-    color: {{red}};
-    background: {{bg}};
+    color: {{accent}};
+    background: rgba(255, 45, 85, 0.15);
 }
 
-/* RIGHT MODULES */
 #clock,
 #network,
 #memory,
@@ -103,15 +93,15 @@ window#waybar {
 #wireplumber,
 #battery,
 #tray {
-    background: {{bg_alt}};
+    background: rgba(8, 8, 18, 0.94);
     border-radius: 10px;
     padding: 0 10px;
     margin-left: 5px;
 }
 
 #clock {
-    color: {{cyan}};
-    border: 1px solid {{cyan}};
+    color: {{accent2}};
+    border: 1px solid {{accent2}};
 }
 
 #network {
@@ -135,8 +125,8 @@ window#waybar {
 }
 
 #wireplumber {
-    color: {{accent2}};
-    border: 1px solid {{accent2}};
+    color: {{blue}};
+    border: 1px solid {{blue}};
 }
 
 #battery {
@@ -150,6 +140,6 @@ window#waybar {
 }
 
 #battery.critical {
-    color: {{red}};
-    border-color: {{red}};
+    color: {{accent}};
+    border-color: {{accent}};
 }

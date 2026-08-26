@@ -76,13 +76,20 @@ class WallpaperEngine:
             else:
                 raise FileNotFoundError(f"Wallpaper not found at '{image_path}'")
 
-        # Ensure swww-daemon is running
-        check_cmd = "pgrep -x swww-daemon >/dev/null || (swww-daemon & sleep 0.5)"
+        # Ensure awww-daemon is running
+        check_cmd = "pgrep -x awww-daemon >/dev/null || (awww-daemon & sleep 0.5)"
         subprocess.run(check_cmd, shell=True)
 
-        # Trigger swww transition
-        cmd = f"swww img '{image_path}' --transition-type {transition} --transition-step 90 --transition-fps 60"
+        # Trigger awww transition
+        cmd = f"awww img '{image_path}' --transition-type {transition} --transition-step 90 --transition-fps 60"
         subprocess.run(cmd, shell=True)
+
+        # Save state for restore_state.sh
+        state_dir = os.path.join(self.base_dir, "state")
+        os.makedirs(state_dir, exist_ok=True)
+        with open(os.path.join(state_dir, "current_wallpaper"), "w") as f:
+            f.write(os.path.abspath(image_path))
+
         print(f"🖼️ Wallpaper updated: {os.path.basename(image_path)}")
 
 if __name__ == "__main__":
