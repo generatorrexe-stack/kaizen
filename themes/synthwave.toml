@@ -1,0 +1,17 @@
+name = "Synthwave 84"
+slug = "synthwave"
+
+[colors]
+bg = "#262335"
+bg_alt = "#241b2f"
+fg = "#ffffff"
+fg_alt = "#848bbd"
+accent = "#ff7edb"
+accent2 = "#36f9f6"
+red = "#fe4450"
+green = "#72f1b8"
+yellow = "#fede5d"
+blue = "#03edf9"
+purple = "#ff7edb"
+cyan = "#36f9f6"
+magenta = "#f92aad"

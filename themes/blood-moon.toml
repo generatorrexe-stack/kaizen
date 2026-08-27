@@ -1,0 +1,17 @@
+name = "Blood Moon"
+slug = "blood-moon"
+
+[colors]
+bg = "#0c0c0e"
+bg_alt = "#16161a"
+fg = "#ffffff"
+fg_alt = "#a0a0a0"
+accent = "#f22c40"
+accent2 = "#ffffff"
+red = "#ff3333"
+green = "#24e052"
+yellow = "#e0c124"
+blue = "#246ce0"
+purple = "#9c24e0"
+cyan = "#24e0e0"
+magenta = "#e02476"

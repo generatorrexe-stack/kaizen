@@ -1,0 +1,17 @@
+name = "Rosé Pine"
+slug = "rose-pine"
+
+[colors]
+bg = "#191724"
+bg_alt = "#1f1d2e"
+fg = "#e0def4"
+fg_alt = "#908caa"
+accent = "#ebbcba"
+accent2 = "#31748f"
+red = "#eb6f92"
+green = "#9ccfd8"
+yellow = "#f6c177"
+blue = "#31748f"
+purple = "#c4a7e7"
+cyan = "#9ccfd8"
+magenta = "#ebbcba"

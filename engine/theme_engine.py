@@ -14,7 +14,7 @@ class ThemeEngine:
     # All known color variable names. Templates MUST only use these.
     KNOWN_VARS = {
         "bg", "bg_alt", "fg", "fg_alt", "accent", "accent2",
-        "red", "green", "yellow", "blue", "purple", "cyan", "border",
+        "red", "green", "yellow", "blue", "purple", "cyan", "magenta", "border",
         # Raw (no #) variants are auto-generated
     }
 
@@ -289,6 +289,7 @@ class ThemeEngine:
             ("waybar-style.css", ".config/waybar/style.css"),
             ("waybar-config.json", ".config/waybar/config"),
             ("kitty-theme.conf", ".config/kitty/theme.conf"),
+            ("kitty-theme.conf", ".config/kitty/current-theme.conf"),
             ("fuzzel.ini", ".config/fuzzel/fuzzel.ini"),
             ("hyprlock.conf", ".config/hypr/hyprlock.conf"),
             ("gtk3.css", ".config/gtk-3.0/gtk.css"),
@@ -391,6 +392,9 @@ class ThemeEngine:
             "hyprctl reload 2>/dev/null",
             "swaync-client -R 2>/dev/null",
             "killall -USR1 kitty 2>/dev/null",
+            "kitty @ set-colors -a -a ~/.config/kitty/theme.conf 2>/dev/null",
+            "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null",
+            "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' 2>/dev/null",
         ]
         for cmd in cmds:
             try:

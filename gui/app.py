@@ -590,7 +590,7 @@ def launch_gui(base_dir=None):
     if base_dir is None:
         base_dir = os.path.expanduser("~/.local/share/kaizen")
     app = KaizenApp(base_dir)
-    app.run(sys.argv)
+    app.run([])
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@
 
         "modules-left": ["group/left"],
         "modules-center": ["hyprland/workspaces"],
-        "modules-right": ["group/right"],
+        "modules-right": ["group/right", "tray"],
 
         "group/left": {
             "orientation": "horizontal",
@@ -30,14 +30,13 @@
                 "cpu",
                 "temperature",
                 "wireplumber",
-                "battery",
-                "tray"
+                "battery"
             ]
         },
 
         "custom/arch": {
-            "format": "",
-            "tooltip-format": "  Arch Linux",
+            "format": "󰣇",
+            "tooltip-format": "󰣇  Arch Linux",
             "on-click": "fuzzel"
         },
 
@@ -48,20 +47,20 @@
                 "*": 5
             },
             "format-icons": {
-                "active": "",
-                "default": "",
-                "urgent": ""
+                "active": "󰮯",
+                "default": "󰊠",
+                "urgent": "󰀨"
             }
         },
 
         "hyprland/window": {
-            "format": "   {title}",
+            "format": " 󰣆  {title}",
             "max-length": 30,
             "all-outputs": true
         },
 
         "clock": {
-            "format": "  {:%I:%M %p  %a %d %b}",
+            "format": "󰥔  {:%I:%M %p  %a %d %b}",
             "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>",
             "calendar": {
                 "mode": "month",
@@ -76,45 +75,45 @@
         },
 
         "mpris": {
-            "format": "  {status_icon} {dynamic}",
+            "format": "󰎆  {status_icon} {dynamic}",
             "status-icons": {
-                "playing": "",
-                "paused": "",
-                "stopped": ""
+                "playing": "󰐊",
+                "paused": "󰏤",
+                "stopped": "󰓛"
             },
             "dynamic-len": 25,
             "on-click": "playerctl play-pause"
         },
 
         "network": {
-            "format-wifi": "  {ipaddr}",
-            "format-ethernet": "  {ipaddr}",
-            "format-disconnected": "  Offline",
-            "tooltip-format-wifi": "  {essid}\nIP: {ipaddr}/{cidr}",
-            "tooltip-format-ethernet": "  Ethernet\nIP: {ipaddr}/{cidr}",
+            "format-wifi": "󰤨  {ipaddr}",
+            "format-ethernet": "󰈀  {ipaddr}",
+            "format-disconnected": "󰤭  Offline",
+            "tooltip-format-wifi": "󰤨  {essid}\nIP: {ipaddr}/{cidr}",
+            "tooltip-format-ethernet": "󰈀  Ethernet\nIP: {ipaddr}/{cidr}",
             "on-click": "kitty -e nmtui"
         },
 
         "memory": {
-            "format": "  {percentage}%",
+            "format": "󰍛  {percentage}%",
             "tooltip-format": "RAM: {used:0.1f} GB / {total:0.1f} GB"
         },
 
         "cpu": {
-            "format": "  {usage}%",
+            "format": "󰻠  {usage}%",
             "interval": 2,
             "tooltip-format": "CPU: {usage}%"
         },
 
         "temperature": {
             "critical-threshold": 80,
-            "format": "  {temperatureC}°C",
+            "format": "󰔏  {temperatureC}°C",
             "tooltip-format": "Temperatura: {temperatureC}°C"
         },
 
         "wireplumber": {
-            "format": "  {volume}%",
-            "format-muted": "  Muted",
+            "format": "󰕾  {volume}%",
+            "format-muted": "󰝟  Muted",
             "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
             "tooltip-format": "Audio: {volume}%"
         },
@@ -125,20 +124,20 @@
                 "critical": 15
             },
             "format": "{icon}  {capacity}%",
-            "format-charging": "  {capacity}%",
-            "format-plugged": "  {capacity}%",
+            "format-charging": "󰂄  {capacity}%",
+            "format-plugged": "󰚥  {capacity}%",
             "format-icons": [
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
+                "󰂎",
+                "󰁺",
+                "󰁻",
+                "󰁼",
+                "󰁽",
+                "󰁾",
+                "󰁿",
+                "󰂀",
+                "󰂁",
+                "󰂂",
+                "󰁹"
             ]
         },
 

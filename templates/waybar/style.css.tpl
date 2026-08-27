@@ -10,8 +10,7 @@ window#waybar {
     color: {{fg}};
 }
 
-#group-left,
-#group-right {
+#group-left {
     background: transparent;
 }
 
@@ -85,6 +84,14 @@ window#waybar {
     background: rgba(255, 45, 85, 0.15);
 }
 
+.modules-right {
+    background: rgba(8, 8, 18, 0.94);
+    border: 1px solid {{accent2}};
+    border-radius: 10px;
+    margin-left: 5px;
+    padding: 0 5px;
+}
+
 #clock,
 #network,
 #memory,
@@ -93,53 +100,45 @@ window#waybar {
 #wireplumber,
 #battery,
 #tray {
-    background: rgba(8, 8, 18, 0.94);
-    border-radius: 10px;
-    padding: 0 10px;
-    margin-left: 5px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0 5px;
+    margin: 0;
 }
 
 #clock {
     color: {{accent2}};
-    border: 1px solid {{accent2}};
 }
 
 #network {
     color: {{green}};
-    border: 1px solid {{green}};
 }
 
 #memory {
     color: {{purple}};
-    border: 1px solid {{purple}};
 }
 
 #cpu {
     color: {{yellow}};
-    border: 1px solid {{yellow}};
 }
 
 #temperature {
     color: {{accent}};
-    border: 1px solid {{accent}};
 }
 
 #wireplumber {
     color: {{blue}};
-    border: 1px solid {{blue}};
 }
 
 #battery {
     color: {{green}};
-    border: 1px solid {{green}};
 }
 
 #battery.warning {
     color: {{yellow}};
-    border-color: {{yellow}};
 }
 
 #battery.critical {
     color: {{accent}};
-    border-color: {{accent}};
 }
