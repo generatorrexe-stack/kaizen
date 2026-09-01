@@ -1,6 +1,8 @@
 {
+    "id": "top",
     "name": "Top Bar",
     "position": "top",
+    "orientation": "horizontal",
     "layer": "top",
     "height": 36,
     "margin-top": 8,

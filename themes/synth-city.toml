@@ -1,0 +1,19 @@
+[meta]
+name = "Synth City"
+author = "Kaizen Curated"
+description = "Sunset outrun aesthetics"
+
+[colors]
+bg       = "#120524"
+bg_alt   = "#250a45"
+fg       = "#ff9eb1"
+fg_alt   = "#9865a8"
+accent   = "#ff2a6d"
+accent2  = "#05d9e8"
+red      = "#ff2a6d"
+green    = "#01ffe5"
+yellow   = "#ffb627"
+blue     = "#05d9e8"
+purple   = "#d1f7ff"
+cyan     = "#01ffe5"
+border   = "#ff2a6d"

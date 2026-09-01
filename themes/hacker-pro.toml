@@ -1,0 +1,19 @@
+[meta]
+name = "Hacker Pro"
+author = "Kaizen AI"
+description = "Stealth terminal with phosphorescent green accents"
+
+[colors]
+bg       = "#030805"
+bg_alt   = "#061009"
+fg       = "#00ff41"
+fg_alt   = "#008f11"
+accent   = "#00ff41"
+accent2  = "#ffffff"
+red      = "#ff0000"
+green    = "#00ff41"
+yellow   = "#ffff00"
+blue     = "#0000ff"
+purple   = "#ff00ff"
+cyan     = "#00ffff"
+border   = "#008f11"

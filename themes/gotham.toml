@@ -1,0 +1,19 @@
+[meta]
+name = "Gotham"
+author = "Kaizen Curated"
+description = "Very dark theme by the bat"
+
+[colors]
+bg       = "#0c1014"
+bg_alt   = "#11151c"
+fg       = "#98d1ce"
+fg_alt   = "#245361"
+accent   = "#33859e"
+accent2  = "#2aa889"
+red      = "#c23127"
+green    = "#2aa889"
+yellow   = "#edb443"
+blue     = "#195466"
+purple   = "#888ca6"
+cyan     = "#33859e"
+border   = "#33859e"

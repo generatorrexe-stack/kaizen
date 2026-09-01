@@ -1,0 +1,19 @@
+[meta]
+name = "Matrix Reloaded"
+author = "Kaizen AI"
+description = "Welcome to the real world."
+
+[colors]
+bg       = "#000000"
+bg_alt   = "#081408"
+fg       = "#00ff00"
+fg_alt   = "#008800"
+accent   = "#00ff00"
+accent2  = "#00cc00"
+red      = "#cc0000"
+green    = "#00ff00"
+yellow   = "#cccc00"
+blue     = "#0000cc"
+purple   = "#cc00cc"
+cyan     = "#00cccc"
+border   = "#00ff00"

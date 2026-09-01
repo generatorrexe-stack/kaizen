@@ -1,0 +1,19 @@
+[meta]
+name = "Everforest"
+author = "Kaizen Curated"
+description = "Green and earthy tones"
+
+[colors]
+bg       = "#2b3339"
+bg_alt   = "#323c41"
+fg       = "#d3c6aa"
+fg_alt   = "#859289"
+accent   = "#a7c080"
+accent2  = "#e67e80"
+red      = "#e67e80"
+green    = "#a7c080"
+yellow   = "#dbbc7f"
+blue     = "#7fbbb3"
+purple   = "#d699b6"
+cyan     = "#83c092"
+border   = "#a7c080"

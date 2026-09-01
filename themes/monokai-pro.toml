@@ -1,0 +1,19 @@
+[meta]
+name = "Monokai Pro"
+author = "Kaizen Curated"
+description = "Professional monokai"
+
+[colors]
+bg       = "#2d2a2e"
+bg_alt   = "#403e41"
+fg       = "#fcfcfa"
+fg_alt   = "#727072"
+accent   = "#ffd866"
+accent2  = "#a9dc76"
+red      = "#ff6188"
+green    = "#a9dc76"
+yellow   = "#ffd866"
+blue     = "#fc9867"
+purple   = "#ab9df2"
+cyan     = "#78dce8"
+border   = "#ffd866"

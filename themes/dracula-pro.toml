@@ -1,0 +1,19 @@
+[meta]
+name = "Dracula Pro"
+author = "Kaizen Curated"
+description = "Modern Dracula variant"
+
+[colors]
+bg       = "#22212c"
+bg_alt   = "#302c3e"
+fg       = "#f8f8f2"
+fg_alt   = "#9580ff"
+accent   = "#ff80bf"
+accent2  = "#8aff80"
+red      = "#ff9580"
+green    = "#8aff80"
+yellow   = "#ffff80"
+blue     = "#9580ff"
+purple   = "#ff80bf"
+cyan     = "#80ffea"
+border   = "#ff80bf"

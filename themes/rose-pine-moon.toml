@@ -1,0 +1,19 @@
+[meta]
+name = "Rose Pine Moon"
+author = "Kaizen Curated"
+description = "Soho vibes for the night"
+
+[colors]
+bg       = "#232136"
+bg_alt   = "#2a273f"
+fg       = "#e0def4"
+fg_alt   = "#908caa"
+accent   = "#c4a7e7"
+accent2  = "#ea9a97"
+red      = "#eb6f92"
+green    = "#3e8fb0"
+yellow   = "#f6c177"
+blue     = "#9ccfd8"
+purple   = "#c4a7e7"
+cyan     = "#ea9a97"
+border   = "#c4a7e7"

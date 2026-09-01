@@ -1,0 +1,19 @@
+[meta]
+name = "Dracula Blood"
+author = "Kaizen AI"
+description = "Vampiric reds on Dracula base"
+
+[colors]
+bg       = "#282a36"
+bg_alt   = "#44475a"
+fg       = "#f8f8f2"
+fg_alt   = "#bfbfbf"
+accent   = "#ff5555"
+accent2  = "#ff79c6"
+red      = "#ff5555"
+green    = "#50fa7b"
+yellow   = "#f1fa8c"
+blue     = "#bd93f9"
+purple   = "#ff79c6"
+cyan     = "#8be9fd"
+border   = "#ff5555"

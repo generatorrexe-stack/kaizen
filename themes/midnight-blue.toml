@@ -1,0 +1,19 @@
+[meta]
+name = "Midnight Blue"
+author = "Kaizen AI"
+description = "Extremely deep blue for night hacking"
+
+[colors]
+bg       = "#030B16"
+bg_alt   = "#08182B"
+fg       = "#B0C4DE"
+fg_alt   = "#5F9EA0"
+accent   = "#1E90FF"
+accent2  = "#00BFFF"
+red      = "#FF4500"
+green    = "#32CD32"
+yellow   = "#FFD700"
+blue     = "#1E90FF"
+purple   = "#9370DB"
+cyan     = "#00FFFF"
+border   = "#1E90FF"

@@ -4,15 +4,16 @@ import subprocess
 
 class LayoutEngine:
     def __init__(self, base_dir=None):
-        self.base_dir = base_dir or os.path.expanduser("~/.config/kaizen")
+        self.base_dir = base_dir or os.path.expanduser("~/.local/share/kaizen")
         self.layouts_dir = os.path.join(self.base_dir, "layouts")
-        self.waybar_config = os.path.expanduser("~/.config/waybar/config")
+        self.state_dir = os.path.join(self.base_dir, "state")
+        os.makedirs(self.state_dir, exist_ok=True)
 
     def list_layouts(self):
         layouts = []
         if not os.path.exists(self.layouts_dir):
             return layouts
-        for f in os.listdir(self.layouts_dir):
+        for f in sorted(os.listdir(self.layouts_dir)):
             if f.endswith(".json"):
                 layout_path = os.path.join(self.layouts_dir, f)
                 try:
@@ -22,11 +23,19 @@ class LayoutEngine:
                             "id": f[:-5],
                             "name": data.get("name", f[:-5]),
                             "position": data.get("position", "top"),
+                            "orientation": data.get("orientation", "horizontal"),
                             "path": layout_path
                         })
                 except Exception as e:
                     print(f"Error loading layout {f}: {e}")
         return layouts
+
+    def get_current_layout(self):
+        layout_file = os.path.join(self.state_dir, "current_layout")
+        if os.path.exists(layout_file):
+            with open(layout_file, "r") as f:
+                return f.read().strip()
+        return "top"
 
     def apply_layout(self, layout_id):
         layout_path = os.path.join(self.layouts_dir, f"{layout_id}.json")
@@ -36,34 +45,19 @@ class LayoutEngine:
         with open(layout_path, "r", encoding="utf-8") as lf:
             layout_data = json.load(lf)
 
-        if not os.path.exists(self.waybar_config):
-            print(f"Waybar config not found at {self.waybar_config}")
-            return
+        # 1. Save active layout state
+        with open(os.path.join(self.state_dir, "current_layout"), "w") as f:
+            f.write(layout_id)
 
-        with open(self.waybar_config, "r", encoding="utf-8") as wf:
-            wb_data = json.load(wf)
+        # 2. Re-render Waybar templates via ThemeEngine with specialized architecture
+        from engine.theme_engine import ThemeEngine
+        t_engine = ThemeEngine(self.base_dir)
+        current_theme = t_engine.get_current_theme() or "cyberpunk-neon"
+        t_engine.apply_theme(current_theme, silent=True)
 
-        # Update position and margins in main Waybar config
-        target = wb_data[0] if isinstance(wb_data, list) else wb_data
-        target["position"] = layout_data.get("position", "top")
-        if "height" in layout_data:
-            target["height"] = layout_data["height"]
-        if "width" in layout_data:
-            target["width"] = layout_data["width"]
-        elif "width" in target:
-            del target["width"]
-
-        margin_keys = ["margin-top", "margin-bottom", "margin-left", "margin-right"]
-        for mk in margin_keys:
-            if mk in layout_data:
-                target[mk] = layout_data[mk]
-
-        with open(self.waybar_config, "w", encoding="utf-8") as wf:
-            json.dump(wb_data, wf, indent=4)
-
-        # Reload Waybar
-        subprocess.Popen("killall -9 waybar 2>/dev/null; waybar &", shell=True)
-        print(f"✅ Layout '{layout_id}' applied to Waybar!")
+        orientation = layout_data.get("orientation", "horizontal")
+        name = layout_data.get("name", layout_id)
+        print(f"✅ Layout '{name}' ({layout_id}, {orientation}) aplicado con éxito a Waybar!")
 
 if __name__ == "__main__":
     engine = LayoutEngine()

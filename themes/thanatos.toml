@@ -1,0 +1,19 @@
+[meta]
+name = "Thanatos"
+author = "Kaizen Curated"
+description = "El dios de la muerte. Negro ceniza, rojo sangre y blanco hueso"
+
+[colors]
+bg       = "#080808"
+bg_alt   = "#161616"
+fg       = "#e3dac9"
+fg_alt   = "#a0988e"
+accent   = "#8a0303"
+accent2  = "#c21010"
+red      = "#b30000"
+green    = "#2b2b2b"
+yellow   = "#5c5c5c"
+blue     = "#1f1f1f"
+purple   = "#4a0000"
+cyan     = "#d9c5b2"
+border   = "#8a0303"

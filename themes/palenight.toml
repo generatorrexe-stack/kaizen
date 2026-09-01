@@ -1,0 +1,19 @@
+[meta]
+name = "Palenight"
+author = "Kaizen Curated"
+description = "Material palenight variant"
+
+[colors]
+bg       = "#292d3e"
+bg_alt   = "#32374d"
+fg       = "#a6accd"
+fg_alt   = "#676e95"
+accent   = "#c792ea"
+accent2  = "#82aaff"
+red      = "#f07178"
+green    = "#c3e88d"
+yellow   = "#ffcb6b"
+blue     = "#82aaff"
+purple   = "#c792ea"
+cyan     = "#89ddff"
+border   = "#c792ea"

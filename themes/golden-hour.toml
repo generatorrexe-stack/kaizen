@@ -1,0 +1,19 @@
+[meta]
+name = "Golden Hour"
+author = "Kaizen AI"
+description = "Warm sunsets and deep browns"
+
+[colors]
+bg       = "#1a1311"
+bg_alt   = "#2c1c17"
+fg       = "#fbeed7"
+fg_alt   = "#c8b398"
+accent   = "#f0a868"
+accent2  = "#f5d061"
+red      = "#d35d56"
+green    = "#92a87a"
+yellow   = "#f5d061"
+blue     = "#6a9fb5"
+purple   = "#aa759f"
+cyan     = "#75b5aa"
+border   = "#f0a868"

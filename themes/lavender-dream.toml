@@ -1,0 +1,19 @@
+[meta]
+name = "Lavender Dream"
+author = "Kaizen AI"
+description = "Soothing purples and pastel colors"
+
+[colors]
+bg       = "#241f31"
+bg_alt   = "#3d3846"
+fg       = "#f6f5f4"
+fg_alt   = "#deddda"
+accent   = "#c061cb"
+accent2  = "#a347ba"
+red      = "#ed333b"
+green    = "#57e389"
+yellow   = "#f6d32d"
+blue     = "#3584e4"
+purple   = "#c061cb"
+cyan     = "#33d17a"
+border   = "#c061cb"

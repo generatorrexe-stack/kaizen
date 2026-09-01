@@ -1,0 +1,19 @@
+[meta]
+name = "Cyber Punk"
+author = "Kaizen Curated"
+description = "Yellow, Pink, and Cyan"
+
+[colors]
+bg       = "#0b0c10"
+bg_alt   = "#1f2833"
+fg       = "#66fcf1"
+fg_alt   = "#45a29e"
+accent   = "#f5d300"
+accent2  = "#ff00ff"
+red      = "#ff003c"
+green    = "#00ff9d"
+yellow   = "#f5d300"
+blue     = "#0df"
+purple   = "#ff00ff"
+cyan     = "#0df"
+border   = "#f5d300"

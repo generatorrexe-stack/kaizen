@@ -1,0 +1,19 @@
+[meta]
+name = "OneDark"
+author = "Kaizen Curated"
+description = "Atom OneDark inspired"
+
+[colors]
+bg       = "#282c34"
+bg_alt   = "#353b45"
+fg       = "#abb2bf"
+fg_alt   = "#5c6370"
+accent   = "#61afef"
+accent2  = "#98c379"
+red      = "#e06c75"
+green    = "#98c379"
+yellow   = "#e5c07b"
+blue     = "#61afef"
+purple   = "#c678dd"
+cyan     = "#56b6c2"
+border   = "#61afef"

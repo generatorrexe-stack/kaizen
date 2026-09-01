@@ -1,0 +1,19 @@
+[meta]
+name = "Obsidian"
+author = "Kaizen AI"
+description = "Sharp dark grays and bright electric blue"
+
+[colors]
+bg       = "#0f0f0f"
+bg_alt   = "#1f1f1f"
+fg       = "#f0f0f0"
+fg_alt   = "#a0a0a0"
+accent   = "#00bfff"
+accent2  = "#1e90ff"
+red      = "#ff3333"
+green    = "#33ff33"
+yellow   = "#ffff33"
+blue     = "#00bfff"
+purple   = "#cc33ff"
+cyan     = "#33ffff"
+border   = "#00bfff"

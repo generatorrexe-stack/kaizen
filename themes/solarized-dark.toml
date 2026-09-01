@@ -1,0 +1,19 @@
+[meta]
+name = "Solarized Dark"
+author = "Kaizen Curated"
+description = "The classic solarized dark theme"
+
+[colors]
+bg       = "#002b36"
+bg_alt   = "#073642"
+fg       = "#839496"
+fg_alt   = "#586e75"
+accent   = "#b58900"
+accent2  = "#2aa198"
+red      = "#dc322f"
+green    = "#859900"
+yellow   = "#b58900"
+blue     = "#268bd2"
+purple   = "#d33682"
+cyan     = "#2aa198"
+border   = "#b58900"

@@ -1,0 +1,19 @@
+[meta]
+name = "Hacker Green"
+author = "Kaizen Curated"
+description = "Classic Matrix green"
+
+[colors]
+bg       = "#000000"
+bg_alt   = "#051105"
+fg       = "#00ff00"
+fg_alt   = "#008800"
+accent   = "#00ff00"
+accent2  = "#00cc00"
+red      = "#ff0000"
+green    = "#00ff00"
+yellow   = "#ffff00"
+blue     = "#0000ff"
+purple   = "#ff00ff"
+cyan     = "#00ffff"
+border   = "#00ff00"

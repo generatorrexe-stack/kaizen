@@ -1,0 +1,19 @@
+[meta]
+name = "Tokyo Neon"
+author = "Kaizen Curated"
+description = "Neon lights in Tokyo"
+
+[colors]
+bg       = "#1a1b26"
+bg_alt   = "#24283b"
+fg       = "#a9b1d6"
+fg_alt   = "#565f89"
+accent   = "#f7768e"
+accent2  = "#7dcfff"
+red      = "#f7768e"
+green    = "#9ece6a"
+yellow   = "#e0af68"
+blue     = "#7aa2f7"
+purple   = "#bb9af7"
+cyan     = "#7dcfff"
+border   = "#f7768e"

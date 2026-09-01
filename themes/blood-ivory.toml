@@ -1,0 +1,19 @@
+[meta]
+name = "Blood Ivory"
+author = "Kaizen Curated"
+description = "White base with deep crimson red"
+
+[colors]
+bg       = "#f5f5f5"
+bg_alt   = "#e0e0e0"
+fg       = "#1a1a1a"
+fg_alt   = "#4a4a4a"
+accent   = "#990000"
+accent2  = "#cc0000"
+red      = "#cc0000"
+green    = "#336600"
+yellow   = "#cc9900"
+blue     = "#0033cc"
+purple   = "#660066"
+cyan     = "#0088cc"
+border   = "#990000"

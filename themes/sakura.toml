@@ -1,0 +1,19 @@
+[meta]
+name = "Sakura"
+author = "Kaizen Curated"
+description = "Light pink cherry blossom theme"
+
+[colors]
+bg       = "#fceeb5"
+bg_alt   = "#f6d8ae"
+fg       = "#5c4b51"
+fg_alt   = "#8c7a80"
+accent   = "#f0a2b8"
+accent2  = "#cfb67e"
+red      = "#df5e88"
+green    = "#8ca361"
+yellow   = "#e8b04a"
+blue     = "#6792a6"
+purple   = "#a980b1"
+cyan     = "#70a6a4"
+border   = "#f0a2b8"

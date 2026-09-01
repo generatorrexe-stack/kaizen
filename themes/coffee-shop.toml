@@ -1,0 +1,19 @@
+[meta]
+name = "Coffee Shop"
+author = "Kaizen Curated"
+description = "Warm browns and cream"
+
+[colors]
+bg       = "#2b1b17"
+bg_alt   = "#3e2723"
+fg       = "#d7ccc8"
+fg_alt   = "#a1887f"
+accent   = "#d84315"
+accent2  = "#ffb300"
+red      = "#bf360c"
+green    = "#558b2f"
+yellow   = "#ffb300"
+blue     = "#0277bd"
+purple   = "#6a1b9a"
+cyan     = "#00838f"
+border   = "#d84315"

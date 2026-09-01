@@ -76,8 +76,8 @@ class WallpaperEngine:
             else:
                 raise FileNotFoundError(f"Wallpaper not found at '{image_path}'")
 
-        # Ensure awww-daemon is running
-        check_cmd = "pgrep -x awww-daemon >/dev/null || (awww-daemon & sleep 0.5)"
+        # Ensure awww-daemon is running (use setsid to survive app close completely)
+        check_cmd = "killall -q hyprpaper swaybg wbg; pgrep -x awww-daemon >/dev/null || (setsid awww-daemon >/dev/null 2>&1 & sleep 0.5)"
         subprocess.run(check_cmd, shell=True)
 
         # Trigger awww transition

@@ -1,0 +1,19 @@
+[meta]
+name = "Ayu Mirage"
+author = "Kaizen Curated"
+description = "Ayu colors with dark mirage background"
+
+[colors]
+bg       = "#1f2430"
+bg_alt   = "#242936"
+fg       = "#cbccc6"
+fg_alt   = "#707a8c"
+accent   = "#ffcc66"
+accent2  = "#5ccfe6"
+red      = "#f28779"
+green    = "#bae67e"
+yellow   = "#ffd580"
+blue     = "#73d0ff"
+purple   = "#d4bfff"
+cyan     = "#5ccfe6"
+border   = "#ffcc66"

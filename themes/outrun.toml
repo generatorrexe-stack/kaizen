@@ -1,0 +1,19 @@
+[meta]
+name = "Outrun"
+author = "Kaizen Curated"
+description = "Retrowave aesthetics"
+
+[colors]
+bg       = "#0d0221"
+bg_alt   = "#190340"
+fg       = "#f5d6f5"
+fg_alt   = "#8b6da1"
+accent   = "#ff007f"
+accent2  = "#00ffff"
+red      = "#ff007f"
+green    = "#00ff9d"
+yellow   = "#fcfc00"
+blue     = "#00f0ff"
+purple   = "#9d00ff"
+cyan     = "#00ffff"
+border   = "#ff007f"

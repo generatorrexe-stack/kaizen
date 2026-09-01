@@ -2,6 +2,7 @@
 import os
 import re
 import sys
+import json
 import time
 import shutil
 import subprocess
@@ -36,24 +37,50 @@ class ThemeEngine:
         themes = []
         if not os.path.exists(self.themes_dir):
             return themes
-        for f in sorted(os.listdir(self.themes_dir)):
-            if f.endswith(".toml"):
-                theme_path = os.path.join(self.themes_dir, f)
-                try:
-                    data = self._load_toml(theme_path)
-                    meta = data.get("meta", {})
-                    colors = data.get("colors", {})
-                    themes.append({
-                        "id": f[:-5],
-                        "name": meta.get("name", f[:-5]),
-                        "description": meta.get("description", ""),
-                        "author": meta.get("author", ""),
-                        "colors": colors,
-                        "path": theme_path,
-                    })
-                except Exception as e:
-                    print(f"⚠ Error loading theme {f}: {e}", file=sys.stderr)
+        for root, _, files in os.walk(self.themes_dir):
+            for f in sorted(files):
+                if f.endswith(".toml"):
+                    theme_path = os.path.join(root, f)
+                    try:
+                        data = self._load_toml(theme_path)
+                        meta = data.get("meta", {})
+                        colors = data.get("colors", {})
+                        cat = meta.get("category")
+                        if not cat:
+                            rel_dir = os.path.relpath(root, self.themes_dir)
+                            cat = rel_dir if rel_dir != "." else "Otros"
+                        themes.append({
+                            "id": f[:-5],
+                            "name": meta.get("name", f[:-5]),
+                            "description": meta.get("description", ""),
+                            "author": meta.get("author", ""),
+                            "category": cat,
+                            "colors": colors,
+                            "path": theme_path,
+                        })
+                    except Exception as e:
+                        print(f"⚠ Error loading theme {f}: {e}", file=sys.stderr)
         return themes
+
+    # ------------------------------------------------------------------
+    # Layout inspection
+    # ------------------------------------------------------------------
+    def get_current_layout(self):
+        return self._read_state("current_layout") or "top"
+
+    def get_layout_info(self, layout_id):
+        layouts_dir = os.path.join(self.base_dir, "layouts")
+        layout_file = os.path.join(layouts_dir, f"{layout_id}.json")
+        if os.path.exists(layout_file):
+            try:
+                with open(layout_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    return data.get("orientation", "horizontal"), data
+            except Exception:
+                pass
+        if layout_id in ("left", "right"):
+            return "vertical", {"position": layout_id, "width": 48}
+        return "horizontal", {"position": layout_id, "height": 36}
 
     # ------------------------------------------------------------------
     # TOML loading with validation
@@ -72,10 +99,18 @@ class ThemeEngine:
     def apply_theme(self, theme_id, silent=False):
         theme_file = os.path.join(self.themes_dir, f"{theme_id}.toml")
         if not os.path.exists(theme_file):
-            avail = [f[:-5] for f in os.listdir(self.themes_dir) if f.endswith(".toml")]
-            raise FileNotFoundError(
-                f"Theme '{theme_id}' not found.\nAvailable: {', '.join(avail)}"
-            )
+            found = None
+            for root, _, files in os.walk(self.themes_dir):
+                if f"{theme_id}.toml" in files:
+                    found = os.path.join(root, f"{theme_id}.toml")
+                    break
+            if found:
+                theme_file = found
+            else:
+                avail = [t["id"] for t in self.list_themes()]
+                raise FileNotFoundError(
+                    f"Theme '{theme_id}' not found.\nAvailable: {', '.join(avail)}"
+                )
 
         # 1. Validate TOML first — fail BEFORE touching anything
         theme_data = self._load_toml(theme_file)
@@ -129,10 +164,27 @@ class ThemeEngine:
     # Render all templates — with strict placeholder validation
     # ------------------------------------------------------------------
     def _render_all_templates(self, context):
-        """Render every .tpl file in templates/. Returns list of errors."""
+        """Render every template file in templates/. Returns list of errors."""
+        current_layout = self.get_current_layout()
+        orientation, layout_data = self.get_layout_info(current_layout)
+
+        # Select specialized Waybar templates based on layout orientation
+        if orientation == "vertical":
+            waybar_tpl = "waybar/config-vertical.json.tpl"
+            waybar_style_tpl = "waybar/style-vertical.css.tpl"
+        else:
+            waybar_tpl = "waybar/config-horizontal.json.tpl"
+            waybar_style_tpl = "waybar/style-horizontal.css.tpl"
+
+        # Fallback to default templates if specific orientation ones are missing
+        if not os.path.exists(os.path.join(self.templates_dir, waybar_tpl)):
+            waybar_tpl = "waybar/config.json.tpl"
+        if not os.path.exists(os.path.join(self.templates_dir, waybar_style_tpl)):
+            waybar_style_tpl = "waybar/style.css.tpl"
+
         render_map = {
-            "waybar/style.css.tpl": "waybar-style.css",
-            "waybar/config.json.tpl": "waybar-config.json",
+            waybar_style_tpl: "waybar-style.css",
+            waybar_tpl: "waybar-config.json",
             "kitty/theme.conf.tpl": "kitty-theme.conf",
             "hyprlock/hyprlock.conf.tpl": "hyprlock.conf",
             "fuzzel/fuzzel.ini.tpl": "fuzzel.ini",
@@ -169,6 +221,30 @@ class ThemeEngine:
                     f"  {tpl_rel}: unreplaced placeholders: {', '.join(set(remaining))}"
                 )
                 continue  # Don't write broken output
+
+            # Apply geometry and margin overrides for Waybar config
+            if gen_name == "waybar-config.json" and layout_data:
+                try:
+                    wb_data = json.loads(content)
+                    target = wb_data[0] if isinstance(wb_data, list) else wb_data
+                    if "position" in layout_data:
+                        target["position"] = layout_data["position"]
+                    if "height" in layout_data:
+                        target["height"] = layout_data["height"]
+                    elif "height" in target and orientation == "vertical":
+                        del target["height"]
+
+                    if "width" in layout_data:
+                        target["width"] = layout_data["width"]
+                    elif "width" in target and orientation == "horizontal":
+                        del target["width"]
+
+                    for mk in ["margin-top", "margin-bottom", "margin-left", "margin-right"]:
+                        if mk in layout_data:
+                            target[mk] = layout_data[mk]
+                    content = json.dumps(wb_data, indent=4)
+                except Exception as e:
+                    print(f"Warning: could not adjust waybar geometry: {e}", file=sys.stderr)
 
             out_path = os.path.join(self.generated_dir, gen_name)
             with open(out_path, "w", encoding="utf-8") as f:
@@ -207,11 +283,16 @@ class ThemeEngine:
             if os.path.exists(src):
                 shutil.copy2(src, os.path.join(backup_path, dst_name))
 
-        # Save which theme was active
-        current = self._read_state("current_theme")
-        if current:
+        # Save which theme and layout were active
+        current_theme = self._read_state("current_theme")
+        if current_theme:
             with open(os.path.join(backup_path, "theme_id"), "w") as f:
-                f.write(current)
+                f.write(current_theme)
+
+        current_layout = self._read_state("current_layout")
+        if current_layout:
+            with open(os.path.join(backup_path, "layout_id"), "w") as f:
+                f.write(current_layout)
 
         # Prune old backups — keep only last 20
         all_backups = sorted(os.listdir(self.backup_dir))
@@ -251,12 +332,18 @@ class ThemeEngine:
                 shutil.copy2(src, dst)
                 restored.append(dst_rel)
 
-        # Restore theme state
+        # Restore theme and layout state
         theme_file = os.path.join(latest, "theme_id")
         if os.path.exists(theme_file):
             with open(theme_file, "r") as f:
                 old_theme = f.read().strip()
             self._save_state("current_theme", old_theme)
+
+        layout_file = os.path.join(latest, "layout_id")
+        if os.path.exists(layout_file):
+            with open(layout_file, "r") as f:
+                old_layout = f.read().strip()
+            self._save_state("current_layout", old_layout)
 
         self._reload_applications()
         print(f"✅ Rolled back to backup {all_backups[-1]}")
@@ -308,7 +395,6 @@ class ThemeEngine:
             dst = os.path.join(home, dst_rel)
             if os.path.exists(src):
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
-                # Remove existing file/symlink
                 if os.path.islink(dst) or os.path.exists(dst):
                     os.remove(dst)
                 try:
@@ -331,7 +417,6 @@ class ThemeEngine:
         if not os.path.exists(gen_qml):
             return  # No SDDM template rendered
 
-        # Create the deploy script if it doesn't exist
         if not os.path.exists(script):
             os.makedirs(os.path.dirname(script), exist_ok=True)
             with open(script, "w") as f:
@@ -353,15 +438,12 @@ class ThemeEngine:
             os.chmod(script, 0o755)
 
         tpl_dir = self.templates_dir
-        # Only attempt pkexec if a polkit agent is running (GUI auth dialog)
-        # Without it, pkexec falls back to terminal auth which blocks
         try:
             agent_check = subprocess.run(
                 ["pgrep", "-f", "polkit-.*agent"],
                 capture_output=True, timeout=3
             )
             if agent_check.returncode != 0:
-                print("  ⚠  SDDM deploy skipped (no polkit agent running — deploy manually with: sudo kaizen-sddm-deploy.sh)")
                 return
         except Exception:
             pass
@@ -373,14 +455,8 @@ class ThemeEngine:
             )
             if result.returncode == 0:
                 print("  ✅ SDDM theme deployed (via pkexec)")
-            else:
-                print(f"  ⚠  SDDM deploy skipped (pkexec returned {result.returncode})")
-        except FileNotFoundError:
-            print("  ⚠  SDDM deploy skipped (pkexec not found)")
-        except subprocess.TimeoutExpired:
-            print("  ⚠  SDDM deploy skipped (timeout — polkit dialog not answered)")
-        except Exception as e:
-            print(f"  ⚠  SDDM deploy skipped ({e})")
+        except Exception:
+            pass
 
     # ------------------------------------------------------------------
     # Reload applications after theme change
@@ -437,3 +513,4 @@ if __name__ == "__main__":
     engine = ThemeEngine()
     themes = engine.list_themes()
     print("Available themes:", [t["id"] for t in themes])
+    print("Current layout:", engine.get_current_layout())

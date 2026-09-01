@@ -1,0 +1,19 @@
+[meta]
+name = "Cherry Blossom"
+author = "Kaizen AI"
+description = "Soft pinks and warm darks"
+
+[colors]
+bg       = "#1e1e2e"
+bg_alt   = "#313244"
+fg       = "#cdd6f4"
+fg_alt   = "#bac2de"
+accent   = "#f5c2e7"
+accent2  = "#cba6f7"
+red      = "#f38ba8"
+green    = "#a6e3a1"
+yellow   = "#f9e2af"
+blue     = "#89b4fa"
+purple   = "#cba6f7"
+cyan     = "#89dceb"
+border   = "#f5c2e7"

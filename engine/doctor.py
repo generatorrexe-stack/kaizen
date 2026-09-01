@@ -131,7 +131,7 @@ def run_doctor(base_dir):
                     placeholders = set(re.findall(r"\{\{(\w+)\}\}", content))
                     known_all = set()
                     for v in ("bg", "bg_alt", "fg", "fg_alt", "accent", "accent2",
-                              "red", "green", "yellow", "blue", "purple", "cyan", "border"):
+                              "red", "green", "yellow", "blue", "purple", "cyan", "magenta", "border"):
                         known_all.add(v)
                         known_all.add(f"{v}_raw")
                     unknown = placeholders - known_all

@@ -1,0 +1,19 @@
+[meta]
+name = "Blueberry"
+author = "Kaizen Curated"
+description = "Deep berry blues and purples"
+
+[colors]
+bg       = "#101421"
+bg_alt   = "#1a1f35"
+fg       = "#c5cdd9"
+fg_alt   = "#6c7a9c"
+accent   = "#82aaff"
+accent2  = "#c792ea"
+red      = "#f07178"
+green    = "#c3e88d"
+yellow   = "#ffcb6b"
+blue     = "#82aaff"
+purple   = "#c792ea"
+cyan     = "#89ddff"
+border   = "#82aaff"

@@ -454,25 +454,114 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
     # ================================================================
     def _build_layouts_tab(self):
         scroll = Gtk.ScrolledWindow()
+        scroll.set_hexpand(True)
+        scroll.set_vexpand(True)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         box.set_margin_start(25)
         box.set_margin_end(25)
         box.set_margin_top(25)
 
-        header = Gtk.Label(label="📐 Posición de Waybar")
+        header = Gtk.Label(label="📐 Posición y Arquitectura de Waybar")
         header.set_halign(Gtk.Align.START)
         header.add_css_class("section-header")
         box.append(header)
 
-        layouts = self.layout_engine.list_layouts()
-        for l in layouts:
-            btn = Gtk.Button(label=f"Aplicar Layout: {l['name']} ({l['position']})")
-            btn.add_css_class("apply-btn")
-            btn.connect("clicked", lambda b, lid=l["id"]: self.layout_engine.apply_layout(lid))
-            box.append(btn)
+        sub_desc = Gtk.Label(label="Selecciona la disposición de Waybar. Los docks laterales (izq/der) usan arquitectura vertical ultra-optimizada.")
+        sub_desc.set_halign(Gtk.Align.START)
+        sub_desc.set_opacity(0.7)
+        box.append(sub_desc)
 
+        grid = Gtk.FlowBox()
+        grid.set_valign(Gtk.Align.START)
+        grid.set_max_children_per_line(2)
+        grid.set_min_children_per_line(1)
+        grid.set_selection_mode(Gtk.SelectionMode.NONE)
+        grid.set_homogeneous(True)
+        grid.set_column_spacing(15)
+        grid.set_row_spacing(15)
+
+        current_layout = self.layout_engine.get_current_layout()
+        layouts = self.layout_engine.list_layouts()
+        self.layout_widgets = {}
+
+        layout_descriptions = {
+            "top": "Barra horizontal superior clásica con título de ventana, reproductor y métricas completas.",
+            "bottom": "Barra horizontal inferior tipo panel clásico para máxima área de trabajo superior.",
+            "left": "Dock vertical izquierdo ultra-limpio con reloj digital apilado e indicadores compactos.",
+            "right": "Dock vertical derecho optimizado para pantallas panorámicas y estilo minimalista."
+        }
+
+        for l in layouts:
+            card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+            card.add_css_class("theme-card")
+            is_active = (l["id"] == current_layout)
+            if is_active:
+                card.add_css_class("theme-card-active")
+
+            header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+            name_lbl = Gtk.Label(label=f"<b>{l['name']}</b>")
+            name_lbl.set_use_markup(True)
+            name_lbl.add_css_class("theme-name")
+            name_lbl.set_halign(Gtk.Align.START)
+            header_box.append(name_lbl)
+
+            orientation_badge = Gtk.Label(label=f" {l['orientation'].title()} ")
+            orientation_badge.add_css_class("status-badge")
+            orientation_badge.add_css_class("badge-installed" if l["orientation"] == "vertical" else "apply-btn-active")
+            header_box.append(orientation_badge)
+            card.append(header_box)
+
+            info_lbl = Gtk.Label(label=layout_descriptions.get(l["id"], f"Posición: {l['position']}"))
+            info_lbl.add_css_class("theme-desc")
+            info_lbl.set_halign(Gtk.Align.START)
+            info_lbl.set_wrap(True)
+            info_lbl.set_max_width_chars(40)
+            card.append(info_lbl)
+
+            btn_label = "✓ Activo" if is_active else "Aplicar Layout"
+            apply_btn = Gtk.Button(label=btn_label)
+            apply_btn.add_css_class("apply-btn")
+            if is_active:
+                apply_btn.add_css_class("apply-btn-active")
+            apply_btn.connect("clicked", self._on_apply_layout, l["id"])
+            self.layout_widgets[l["id"]] = (apply_btn, card)
+            card.append(apply_btn)
+
+            grid.append(card)
+
+        box.append(grid)
         scroll.set_child(box)
         self.stack.add_titled(scroll, "layouts", "📐 Layouts")
+
+    def _on_apply_layout(self, btn, layout_id):
+        btn.set_label("⏳ Aplicando...")
+        btn.set_sensitive(False)
+
+        def do_apply():
+            try:
+                self.layout_engine.apply_layout(layout_id)
+                GLib.idle_add(self._on_layout_applied, layout_id)
+            except Exception as e:
+                GLib.idle_add(self._show_toast, f"❌ Error aplicando layout: {e}")
+
+        thread = threading.Thread(target=do_apply, daemon=True)
+        thread.start()
+
+    def _on_layout_applied(self, layout_id):
+        for lid, (btn, card) in self.layout_widgets.items():
+            if lid == layout_id:
+                btn.set_label("✓ Activo")
+                btn.add_css_class("apply-btn-active")
+                card.add_css_class("theme-card-active")
+            else:
+                btn.set_label("Aplicar Layout")
+                btn.set_sensitive(True)
+                try:
+                    btn.remove_css_class("apply-btn-active")
+                    card.remove_css_class("theme-card-active")
+                except Exception:
+                    pass
+        self._show_toast(f"✅ Layout '{layout_id}' aplicado")
 
     # ================================================================
     # PACKAGES TAB

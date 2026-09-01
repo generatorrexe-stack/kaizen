@@ -3,25 +3,46 @@ set -e
 
 echo "🚀 Instalando Kaizen..."
 
-# 1. Crear directorios necesarios
-mkdir -p ~/.local/share/kaizen
-mkdir -p ~/.local/bin
+KAIZEN_DIR="$HOME/.local/share/kaizen"
+BIN_DIR="$HOME/.local/bin"
 
-# 2. Copiar los archivos del repo a la carpeta de usuario
-echo "📂 Copiando archivos a ~/.local/share/kaizen..."
-cp -r ./* ~/.local/share/kaizen/
+# 1. Crear directorios
+mkdir -p "$KAIZEN_DIR"
+mkdir -p "$BIN_DIR"
 
-# 3. Hacer ejecutable el CLI
-chmod +x ~/.local/share/kaizen/cli/kaizen.py
+# 2. Copiar el proyecto
+echo "📂 Copiando archivos a $KAIZEN_DIR..."
 
-# 4. Crear un enlace simbólico (symlink) para usar 'kaizen' desde cualquier lado
+cp -r ./. "$KAIZEN_DIR/"
+
+# 3. Hacer ejecutables los scripts
+echo "🔐 Configurando permisos..."
+
+chmod +x "$KAIZEN_DIR/bin/kaizen"
+chmod +x "$KAIZEN_DIR/bin/kaizen-sddm-deploy.sh"
+chmod +x "$KAIZEN_DIR/bin/restore_state.sh"
+
+# 4. Crear comando global
 echo "🔗 Creando comando global 'kaizen'..."
-ln -sf ~/.local/share/kaizen/cli/kaizen.py ~/.local/bin/kaizen
 
-# 5. Instalar dependencias de Python (Asegúrate de tener yay o pacman listo)
-echo "📦 Instalando dependencias necesarias..."
-sudo pacman -S --needed python-gobject gtk3 python-jinja python-rich --noconfirm
+ln -sf "$KAIZEN_DIR/bin/kaizen" "$BIN_DIR/kaizen"
+
+# 5. Instalar dependencias
+echo "📦 Instalando dependencias..."
+
+sudo pacman -S --needed \
+    python \
+    python-gobject \
+    gtk3 \
+    python-jinja \
+    python-rich \
+    --noconfirm
 
 echo ""
-echo "✅ ¡Instalación completa!"
-echo "👉 Escribe 'kaizen gui' o 'kaizen help' para empezar."
+echo "✅ ¡Kaizen instalado correctamente!"
+echo ""
+echo "👉 Ejecuta:"
+echo ""
+echo "   kaizen"
+echo ""
+

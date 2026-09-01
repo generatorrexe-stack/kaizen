@@ -1,0 +1,19 @@
+[meta]
+name = "Monochrome"
+author = "Kaizen AI"
+description = "Strictly black, white and grays"
+
+[colors]
+bg       = "#000000"
+bg_alt   = "#111111"
+fg       = "#ffffff"
+fg_alt   = "#888888"
+accent   = "#ffffff"
+accent2  = "#cccccc"
+red      = "#ffffff"
+green    = "#ffffff"
+yellow   = "#ffffff"
+blue     = "#ffffff"
+purple   = "#ffffff"
+cyan     = "#ffffff"
+border   = "#ffffff"

@@ -1,0 +1,19 @@
+[meta]
+name = "Abyss"
+author = "Kaizen Curated"
+description = "Very deep dark blue"
+
+[colors]
+bg       = "#000c18"
+bg_alt   = "#001a33"
+fg       = "#6688cc"
+fg_alt   = "#335588"
+accent   = "#22aaff"
+accent2  = "#00ddff"
+red      = "#cc3333"
+green    = "#22aa44"
+yellow   = "#ddaa00"
+blue     = "#22aaff"
+purple   = "#aa44dd"
+cyan     = "#00ddff"
+border   = "#22aaff"

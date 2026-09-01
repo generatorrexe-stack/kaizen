@@ -1,0 +1,19 @@
+[meta]
+name = "Mint Choco"
+author = "Kaizen AI"
+description = "Dark chocolate backgrounds with refreshing mint"
+
+[colors]
+bg       = "#2c2220"
+bg_alt   = "#3f322f"
+fg       = "#e6dedc"
+fg_alt   = "#9e8e8b"
+accent   = "#98ff98"
+accent2  = "#4fff4f"
+red      = "#ff6b6b"
+green    = "#98ff98"
+yellow   = "#ffda79"
+blue     = "#54a0ff"
+purple   = "#5f27cd"
+cyan     = "#48dbfb"
+border   = "#98ff98"

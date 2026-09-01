@@ -1,0 +1,19 @@
+[meta]
+name = "Oceanic Next"
+author = "Kaizen Curated"
+description = "Deep oceanic blues"
+
+[colors]
+bg       = "#1b2b34"
+bg_alt   = "#343d46"
+fg       = "#d8dee9"
+fg_alt   = "#65737e"
+accent   = "#5fb3b3"
+accent2  = "#c594c5"
+red      = "#ec5f67"
+green    = "#99c794"
+yellow   = "#fac863"
+blue     = "#6699cc"
+purple   = "#c594c5"
+cyan     = "#5fb3b3"
+border   = "#5fb3b3"

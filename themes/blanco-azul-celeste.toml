@@ -1,0 +1,19 @@
+[meta]
+name = "Blanco Azul Celeste"
+author = "Kaizen Curated"
+description = "Limpio y claro"
+
+[colors]
+bg       = "#ffffff"
+bg_alt   = "#f0f4f8"
+fg       = "#102a43"
+fg_alt   = "#334e68"
+accent   = "#0077cc"
+accent2  = "#33bbff"
+red      = "#cc0000"
+green    = "#00cc66"
+yellow   = "#ffcc00"
+blue     = "#0077cc"
+purple   = "#9933cc"
+cyan     = "#33bbff"
+border   = "#0077cc"

@@ -1,0 +1,19 @@
+[meta]
+name = "Rojo Negro Blanco"
+author = "Kaizen Curated"
+description = "Contraste agresivo pedido por el usuario"
+
+[colors]
+bg       = "#000000"
+bg_alt   = "#111111"
+fg       = "#ffffff"
+fg_alt   = "#aaaaaa"
+accent   = "#ff0000"
+accent2  = "#cc0000"
+red      = "#ff0000"
+green    = "#333333"
+yellow   = "#ff6666"
+blue     = "#ffffff"
+purple   = "#880000"
+cyan     = "#ffaaaa"
+border   = "#ff0000"

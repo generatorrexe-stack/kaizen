@@ -1,6 +1,8 @@
 {
+    "id": "bottom",
     "name": "Bottom Bar",
     "position": "bottom",
+    "orientation": "horizontal",
     "layer": "top",
     "height": 36,
     "margin-top": 0,

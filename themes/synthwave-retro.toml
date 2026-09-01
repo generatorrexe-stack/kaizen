@@ -1,0 +1,19 @@
+[meta]
+name = "Synthwave Retro"
+author = "Kaizen AI"
+description = "80s outrun aesthetics"
+
+[colors]
+bg       = "#1b192c"
+bg_alt   = "#26233a"
+fg       = "#e0def4"
+fg_alt   = "#908caa"
+accent   = "#f5555d"
+accent2  = "#fe4450"
+red      = "#eb6f92"
+green    = "#31748f"
+yellow   = "#f6c177"
+blue     = "#9ccfd8"
+purple   = "#c4a7e7"
+cyan     = "#ebbcba"
+border   = "#fe4450"

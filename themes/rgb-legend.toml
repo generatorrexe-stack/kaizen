@@ -1,0 +1,19 @@
+[meta]
+name = "RGB Legend"
+author = "Kaizen Curated"
+description = "Rojo, verde y azul en armonia oscura"
+
+[colors]
+bg       = "#050505"
+bg_alt   = "#121212"
+fg       = "#e0e0e0"
+fg_alt   = "#888888"
+accent   = "#ff0000"
+accent2  = "#00ff00"
+red      = "#ff0000"
+green    = "#00ff00"
+yellow   = "#ffff00"
+blue     = "#0000ff"
+purple   = "#ff00ff"
+cyan     = "#00ffff"
+border   = "#ff0000"
