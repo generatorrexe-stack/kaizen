@@ -1,0 +1,111 @@
+#!/bin/bash
+# Root-only helper invoked through Kaizen's narrow Polkit actions.
+# It never executes a caller-supplied program or accepts arbitrary pacman flags.
+set -euo pipefail
+PATH=/usr/bin:/usr/sbin:/bin:/sbin
+SDDM_DEPLOY_SCRIPT=/usr/lib/kaizen/kaizen-sddm-deploy
+
+die() { echo "kaizen-privileged: $*" >&2; exit 2; }
+# Allowlist: package names must start alphanumeric, never with '-'.
+is_package_name() { [[ "$1" =~ ^[A-Za-z0-9][A-Za-z0-9@._+:-]*$ ]]; }
+
+require_packages() {
+    (($# > 0)) || die "at least one package is required"
+    local package
+    for package in "$@"; do
+        is_package_name "$package" || die "invalid package name: $package"
+    done
+}
+
+run_yay_sync() {
+    (($# > 1)) || die "missing yay sync arguments"
+    [[ "$1" == "-S" || "$1" == "--sync" ]] || die "yay may only request pacman sync"
+    shift
+    local args=("-S" "--needed" "--noconfirm")
+    local packages=()
+    local arg
+    for arg in "$@"; do
+        case "$arg" in
+            --needed|--noconfirm|--asdeps|--asexplicit) args+=("$arg") ;;
+            *) is_package_name "$arg" || die "unsupported yay pacman argument: $arg"; packages+=("$arg") ;;
+        esac
+    done
+    require_packages "${packages[@]}"
+    exec /usr/bin/pacman "${args[@]}" -- "${packages[@]}"
+}
+
+run_yay_remove() {
+    (($# > 1)) || die "missing yay remove arguments"
+    [[ "$1" == "-R" || "$1" == "--remove" ]] || die "yay may only request pacman removal"
+    shift
+    local packages=()
+    local arg
+    for arg in "$@"; do
+        case "$arg" in --noconfirm|-s|--recursive|--nosave) ;; *) is_package_name "$arg" || die "unsupported yay pacman argument: $arg"; packages+=("$arg") ;; esac
+    done
+    require_packages "${packages[@]}"
+    exec /usr/bin/pacman -Rns --noconfirm -- "${packages[@]}"
+}
+
+require_kaizen_directory() {
+    local candidate="$1"
+    local suffix="$2"
+    local uid="${PKEXEC_UID:-}"
+    [[ "$uid" =~ ^[0-9]+$ ]] || die "missing invoking user"
+    local user_home
+    user_home="$(getent passwd "$uid" | cut -d: -f6)"
+    [[ -n "$user_home" ]] || die "could not resolve invoking user home"
+    local expected="$user_home/.local/share/kaizen/$suffix"
+    [[ "$(realpath -e "$candidate")" == "$(realpath -e "$expected")" ]] || die "unexpected Kaizen $suffix path"
+}
+
+require_file_within_directory() {
+    local candidate="$1"
+    local parent="$2"
+    local candidate_real parent_real
+    candidate_real="$(realpath -e "$candidate")" || die "missing source file: $candidate"
+    parent_real="$(realpath -e "$parent")" || die "missing source directory: $parent"
+    [[ -f "$candidate_real" ]] || die "source is not a regular file: $candidate"
+    # Component-aware containment: '/generated-evil/x' does not match '/generated/*'.
+    case "$candidate_real" in
+        "$parent_real"/*) ;;
+        *) die "source escapes expected directory: $candidate" ;;
+    esac
+}
+
+deploy_sddm() {
+    (($# == 2)) || die "usage: sddm-deploy <generated-dir> <templates-dir>"
+    require_kaizen_directory "$1" generated
+    require_kaizen_directory "$2" templates
+    require_file_within_directory "$1/sddm-Main.qml" "$1"
+    [[ ! -e "$1/sddm-theme.conf" ]] || require_file_within_directory "$1/sddm-theme.conf" "$1"
+    [[ -x "$SDDM_DEPLOY_SCRIPT" ]] || die "installed SDDM deploy script is missing"
+    exec "$SDDM_DEPLOY_SCRIPT" "$(realpath -e "$1")" "$(realpath -e "$2")"
+}
+
+docker_add_invoker_to_group() {
+    (($# == 0)) || die "docker group configuration takes no arguments"
+    local uid="${PKEXEC_UID:-}"
+    [[ "$uid" =~ ^[0-9]+$ ]] || die "missing invoking user"
+    local user
+    user="$(getent passwd "$uid" | cut -d: -f1)"
+    [[ -n "$user" ]] || die "could not resolve invoking user"
+    getent group docker >/dev/null || die "docker group does not exist"
+    exec /usr/bin/usermod -aG docker "$user"
+}
+
+service_enable_now() {
+    (($# == 1 && "$1" == "docker.service")) || die "only docker.service may be enabled"
+    exec /usr/bin/systemctl enable --now docker.service
+}
+
+case "${1:-}" in
+    sddm-deploy) shift; deploy_sddm "$@" ;;
+    package-install) shift; require_packages "$@"; exec /usr/bin/pacman -S --needed --noconfirm -- "$@" ;;
+    package-remove) shift; require_packages "$@"; exec /usr/bin/pacman -Rns --noconfirm -- "$@" ;;
+    yay-sync) shift; run_yay_sync "$@" ;;
+    yay-remove) shift; run_yay_remove "$@" ;;
+    docker-add-invoker-to-group) shift; docker_add_invoker_to_group "$@" ;;
+    service-enable-now) shift; service_enable_now "$@" ;;
+    *) die "unsupported operation" ;;
+esac

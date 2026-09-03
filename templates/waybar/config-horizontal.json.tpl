@@ -4,9 +4,9 @@
         "position": "top",
         "height": 36,
         "spacing": 0,
-        "margin-top": 8,
-        "margin-left": 10,
-        "margin-right": 10,
+        "margin-top": {{outer_gap}},
+        "margin-left": {{outer_gap}},
+        "margin-right": {{outer_gap}},
 
         "modules-left": ["group/left"],
         "modules-center": ["hyprland/workspaces"],
@@ -76,12 +76,13 @@
 
         "mpris": {
             "format": "󰎆  {status_icon} {dynamic}",
+            "format-paused": "󰎆  {status_icon} <i>{dynamic}</i>",
             "status-icons": {
                 "playing": "󰐊",
                 "paused": "󰏤",
                 "stopped": "󰓛"
             },
-            "dynamic-len": 25,
+            "dynamic-len": 40,
             "on-click": "playerctl play-pause"
         },
 

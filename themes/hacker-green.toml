@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Hacker Green"
 author = "Kaizen Curated"
@@ -17,3 +19,16 @@ blue     = "#0000ff"
 purple   = "#ff00ff"
 cyan     = "#00ffff"
 border   = "#00ff00"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

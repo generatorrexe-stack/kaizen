@@ -4,6 +4,8 @@ import shutil
 import subprocess
 import tomllib
 import re
+from engine.accessibility import find_low_contrast_pairs
+from engine.theme_schema import CURRENT_THEME_SCHEMA_VERSION, migrate_theme_data
 
 
 def run_doctor(base_dir):
@@ -101,6 +103,10 @@ def run_doctor(base_dir):
                 try:
                     with open(path, "rb") as tf:
                         data = tomllib.load(tf)
+                    data, schema_notices = migrate_theme_data(data, f)
+                    for notice in schema_notices:
+                        print(f"  ⚠  {notice}")
+                        warnings.append(notice)
                     colors = data.get("colors", {})
                     if not colors:
                         print(f"  ⚠  {f}: no [colors] section")
@@ -111,8 +117,17 @@ def run_doctor(base_dir):
                             print(f"  ⚠  {f}: missing colors: {', '.join(missing)}")
                             warnings.append(f"Theme {f} missing: {', '.join(missing)}")
                         else:
-                            print(f"  ✅ {f}: valid ({len(colors)} colors)")
-                            ok_count += 1
+                            try:
+                                c_warns = find_low_contrast_pairs(colors)
+                                if c_warns:
+                                    for w in c_warns:
+                                        print(f"  ⚠  {f}: WCAG AA contrast warning — {w}")
+                                        warnings.append(f"Theme {f}: low contrast {w}")
+                                else:
+                                    print(f"  ✅ {f}: valid ({len(colors)} colors, good contrast)")
+                                    ok_count += 1
+                            except Exception as e:
+                                print(f"  ⚠  {f}: error calculating contrast: {e}")
                 except Exception as e:
                     print(f"  ❌ {f}: PARSE ERROR — {e}")
                     issues.append(f"Theme {f} has parse error: {e}")
@@ -131,7 +146,7 @@ def run_doctor(base_dir):
                     placeholders = set(re.findall(r"\{\{(\w+)\}\}", content))
                     known_all = set()
                     for v in ("bg", "bg_alt", "fg", "fg_alt", "accent", "accent2",
-                              "red", "green", "yellow", "blue", "purple", "cyan", "magenta", "border"):
+                              "red", "green", "yellow", "blue", "purple", "cyan", "magenta", "border", "outer_gap", "wallpaper_path", "sddm_wallpaper_asset"):
                         known_all.add(v)
                         known_all.add(f"{v}_raw")
                     unknown = placeholders - known_all
@@ -181,6 +196,31 @@ def run_doctor(base_dir):
     else:
         print(f"  ⚠  No active theme set")
         warnings.append("No active theme in state/current_theme")
+
+    # 9. Validate Presets
+    print("\n━━━ Preset Validation ━━━")
+    try:
+        from engine.preset_engine import PresetEngine
+        preset_engine = PresetEngine(base_dir)
+        presets = preset_engine.list_presets()
+        if presets:
+            for p in presets:
+                errs, warns = preset_engine.validate_preset(p)
+                if not errs and not warns:
+                    print(f"  ✅ {p['id']}: valid")
+                    ok_count += 1
+                else:
+                    for e in errs:
+                        print(f"  ❌ {p['id']}: {e}")
+                        issues.append(f"Preset {p['id']}: {e}")
+                    for w in warns:
+                        print(f"  ⚠  {p['id']}: {w}")
+                        warnings.append(f"Preset {p['id']}: {w}")
+        else:
+            print("  ℹ  No presets found")
+    except Exception as e:
+        print(f"  ❌ Failed to validate presets: {e}")
+        issues.append(f"Failed to validate presets: {e}")
 
     # Summary
     print(f"\n{'='*50}")

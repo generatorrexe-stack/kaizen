@@ -1,3 +1,5 @@
+schema_version = 2
+
 name = "Rosé Pine"
 slug = "rose-pine"
 
@@ -15,3 +17,16 @@ blue = "#31748f"
 purple = "#c4a7e7"
 cyan = "#9ccfd8"
 magenta = "#ebbcba"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

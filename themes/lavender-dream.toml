@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Lavender Dream"
 author = "Kaizen AI"
@@ -17,3 +19,16 @@ blue     = "#3584e4"
 purple   = "#c061cb"
 cyan     = "#33d17a"
 border   = "#c061cb"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

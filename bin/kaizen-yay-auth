@@ -1,0 +1,28 @@
+#!/bin/bash
+# Adapter passed to yay's --sudo option.  It accepts only pacman's sync/remove
+# calls and routes them through the corresponding Kaizen Polkit action.
+set -euo pipefail
+
+[[ "${1:-}" == "pacman" || "${1:-}" == "/usr/bin/pacman" ]] || {
+    echo "kaizen-yay-auth: expected pacman" >&2
+    exit 2
+}
+shift
+
+case "${1:-}" in
+    -S|--sync)
+        action=io.github.kaizen.package.install
+        operation=yay-sync
+        ;;
+    -R|--remove)
+        action=io.github.kaizen.package.remove
+        operation=yay-remove
+        ;;
+    *)
+        echo "kaizen-yay-auth: unsupported pacman operation" >&2
+        exit 2
+        ;;
+esac
+
+exec pkexec --disable-internal-agent --action-id "$action" \
+    /usr/lib/kaizen/kaizen-privileged "$operation" "$@"

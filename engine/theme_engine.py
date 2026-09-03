@@ -7,6 +7,8 @@ import time
 import shutil
 import subprocess
 import tomllib
+from engine.hook_engine import HookRunner
+from engine.theme_schema import migrate_theme_data
 
 
 class ThemeEngine:
@@ -26,6 +28,7 @@ class ThemeEngine:
         self.generated_dir = os.path.join(self.base_dir, "generated")
         self.state_dir = os.path.join(self.base_dir, "state")
         self.backup_dir = os.path.expanduser("~/.config/kaizen-backups/auto")
+        self.hook_runner = HookRunner(self.base_dir)
         os.makedirs(self.generated_dir, exist_ok=True)
         os.makedirs(self.state_dir, exist_ok=True)
         os.makedirs(self.backup_dir, exist_ok=True)
@@ -86,17 +89,27 @@ class ThemeEngine:
     # TOML loading with validation
     # ------------------------------------------------------------------
     def _load_toml(self, path):
-        """Load and validate a TOML file. Raises on parse error."""
+        """Load and migrate a TOML theme. Raises on parse/schema errors."""
         with open(path, "rb") as f:
             try:
-                return tomllib.load(f)
+                data = tomllib.load(f)
             except tomllib.TOMLDecodeError as e:
                 raise ValueError(f"TOML parse error in {path}: {e}") from e
+        data, notices = migrate_theme_data(data, path)
+        for notice in notices:
+            print(f"⚠ {notice}", file=sys.stderr)
+        return data
 
     # ------------------------------------------------------------------
     # Apply theme — the main entry point
     # ------------------------------------------------------------------
-    def apply_theme(self, theme_id, silent=False):
+    def apply_theme(self, theme_id, silent=False, dry_run=False, hook_context=None):
+        """Render a theme and optionally apply it to the running desktop.
+
+        A dry run writes its output under ``generated/preview/<theme-id>/``.  It
+        deliberately does not overwrite the live generated files, because those
+        can already be the targets of Kaizen-managed symlinks.
+        """
         theme_file = os.path.join(self.themes_dir, f"{theme_id}.toml")
         if not os.path.exists(theme_file):
             found = None
@@ -118,36 +131,83 @@ class ThemeEngine:
         if not colors:
             raise ValueError(f"Theme '{theme_id}' has no [colors] section")
 
+        icons = theme_data.get("icons", {})
+        cursor = theme_data.get("cursor", {})
+        font = theme_data.get("font", {})
+        gtk = theme_data.get("gtk", {})
+
         # 2. Build context
-        context = self._build_context(colors)
+        context = self._build_context(colors, icons, cursor, font, gtk)
 
-        # 3. Auto-backup current live configs
-        self._auto_backup()
+        # 3. Render all templates.  Preview output is isolated from the live
+        # generated files, so an existing symlink cannot make a dry run visible.
+        output_dir = self.generated_dir
+        if dry_run:
+            output_dir = os.path.join(self.generated_dir, "preview", theme_id)
 
-        # 4. Render all templates
-        errors = self._render_all_templates(context)
-        if errors:
-            msg = "Template rendering failed:\n" + "\n".join(errors)
-            raise RuntimeError(msg)
+        if dry_run:
+            errors, rendered_files = self._render_all_templates(context, output_dir)
+            if errors:
+                msg = "Template rendering failed:\n" + "\n".join(errors)
+                raise RuntimeError(msg)
+            result = {
+                "theme_id": theme_id,
+                "name": theme_data.get("meta", {}).get("name", theme_id),
+                "context": context,
+                "output_dir": output_dir,
+                "rendered_files": rendered_files,
+            }
+            if not silent:
+                print(f"🔎 Preview for '{result['name']}' rendered to {output_dir}")
+                print("   No symlinks, backup, state changes, or application reloads were made.")
+            return result
 
-        # 5. Create symlinks to live config locations
-        self._create_symlinks()
+        previous_theme_id = self.get_current_theme() or ""
+        hook_context = dict(hook_context or {})
+        operation = hook_context.pop("operation", "theme_apply")
+        self.hook_runner.run_apply_phase(
+            "pre_apply", theme_id, previous_theme_id, operation, hook_context,
+        )
+        try:
+            # Preserve live configuration before writing the normal generated output:
+            # those files may be the targets of existing managed symlinks.
+            self._auto_backup()
+            errors, _ = self._render_all_templates(context, output_dir)
+            if errors:
+                msg = "Template rendering failed:\n" + "\n".join(errors)
+                raise RuntimeError(msg)
 
-        # 6. Save state
-        self._save_state("current_theme", theme_id)
-        self._append_history(theme_id)
+            # 4. Create symlinks to live config locations
+            self._create_symlinks()
 
-        # 7. Reload applications
-        self._reload_applications()
+            # 6. Save state
+            self._save_state("current_theme", theme_id)
+            self._append_history(theme_id)
+
+            # 7. Reload applications
+            self._reload_applications(context)
+        finally:
+            self.hook_runner.run_apply_phase(
+                "post_apply", theme_id, previous_theme_id, operation, hook_context,
+            )
 
         if not silent:
             name = theme_data.get("meta", {}).get("name", theme_id)
             print(f"✅ Theme '{name}' ({theme_id}) applied successfully!")
 
+    def preview_theme(self, theme_id):
+        """Render and return a non-invasive preview for a theme."""
+        return self.apply_theme(theme_id, silent=True, dry_run=True)
+
     # ------------------------------------------------------------------
     # Build template context from color dict
     # ------------------------------------------------------------------
-    def _build_context(self, colors):
+    def _build_context(self, colors, icons=None, cursor=None, font=None, gtk=None):
+        icons = icons or {}
+        cursor = cursor or {}
+        font = font or {}
+        gtk = gtk or {}
+        
         context = {}
         for k, v in colors.items():
             context[k] = v
@@ -158,15 +218,80 @@ class ThemeEngine:
             if var not in context:
                 context[var] = colors.get("fg", "#ffffff")
                 context[f"{var}_raw"] = context[var].lstrip("#")
+                
+        context["icon_theme"] = icons.get("icon_theme", "Adwaita")
+        context["cursor_theme"] = cursor.get("cursor_theme", "Adwaita")
+        context["cursor_size"] = cursor.get("cursor_size", 24)
+        context["font_name"] = font.get("font_name", "Cantarell 11")
+        context["wallpaper_path"] = self._read_state("current_wallpaper") or ""
+        context["sddm_wallpaper_asset"] = "kaizen-wallpaper"
+        
+        raw_prefer_dark = gtk.get("prefer_dark_theme", "1")
+        if isinstance(raw_prefer_dark, bool):
+            context["prefer_dark_theme"] = "1" if raw_prefer_dark else "0"
+        elif str(raw_prefer_dark).lower() in ("0", "false", "no"):
+            context["prefer_dark_theme"] = "0"
+        else:
+            context["prefer_dark_theme"] = "1"
+
+        # Explicit user theme takes priority. Only fallback to Adwaita / Adwaita-dark if not defined.
+        user_gtk_theme = gtk.get("gtk_theme") or gtk.get("theme") or gtk.get("name")
+        if user_gtk_theme:
+            context["gtk_theme"] = user_gtk_theme
+        else:
+            context["gtk_theme"] = "Adwaita-dark" if context["prefer_dark_theme"] == "1" else "Adwaita"
+        
         return context
+
+    def sync_wallpaper(self, desktop_path, lockscreen_path=None, sddm_path=None, deploy=True):
+        """Render lockscreen/SDDM wallpaper artifacts for the active theme.
+
+        The SDDM image is copied into generated/ first; deploy remains restricted
+        to the existing Polkit route in ``_deploy_sddm``.
+        """
+        theme_id = self.get_current_theme()
+        if not theme_id:
+            raise RuntimeError("Cannot sync wallpaper: no active theme")
+        theme_path = os.path.join(self.themes_dir, f"{theme_id}.toml")
+        theme = self._load_toml(theme_path)
+        wallpaper = theme.get("wallpaper", {})
+        lockscreen_path = lockscreen_path or wallpaper.get("lockscreen_path") or desktop_path
+        sddm_path = sddm_path or wallpaper.get("sddm_path") or desktop_path
+        for label, path in (("lockscreen", lockscreen_path), ("SDDM", sddm_path)):
+            if not os.path.isfile(path):
+                raise FileNotFoundError(f"{label} wallpaper not found: {path}")
+
+        context = self._build_context(
+            theme.get("colors", {}), theme.get("icons", {}), theme.get("cursor", {}),
+            theme.get("font", {}), theme.get("gtk", {}),
+        )
+        context["wallpaper_path"] = os.path.abspath(lockscreen_path)
+        suffix = os.path.splitext(sddm_path)[1].lower() or ".img"
+        asset_name = f"kaizen-wallpaper{suffix}"
+        context["sddm_wallpaper_asset"] = asset_name
+        asset_path = os.path.join(self.generated_dir, asset_name)
+        shutil.copy2(sddm_path, asset_path)
+        errors, _ = self._render_all_templates(context, self.generated_dir)
+        if errors:
+            raise RuntimeError("Wallpaper template rendering failed:\n" + "\n".join(errors))
+        self._link_generated("hyprlock.conf", ".config/hypr/hyprlock.conf")
+        deployed = self._deploy_sddm() if deploy else None
+        if deploy and not deployed:
+            raise RuntimeError("SDDM deploy failed after Hyprlock was updated")
+        return {"lockscreen_path": context["wallpaper_path"], "sddm_path": sddm_path,
+                "sddm_asset": asset_path, "sddm_deployed": deployed}
 
     # ------------------------------------------------------------------
     # Render all templates — with strict placeholder validation
     # ------------------------------------------------------------------
-    def _render_all_templates(self, context):
-        """Render every template file in templates/. Returns list of errors."""
+    def _render_all_templates(self, context, output_dir=None):
+        """Render every template file and return ``(errors, rendered_paths)``."""
+        output_dir = output_dir or self.generated_dir
+        os.makedirs(output_dir, exist_ok=True)
         current_layout = self.get_current_layout()
         orientation, layout_data = self.get_layout_info(current_layout)
+        outer_gap = int(layout_data.get("outer_gap", 8))
+        context = {**context, "outer_gap": outer_gap}
 
         # Select specialized Waybar templates based on layout orientation
         if orientation == "vertical":
@@ -190,6 +315,8 @@ class ThemeEngine:
             "fuzzel/fuzzel.ini.tpl": "fuzzel.ini",
             "gtk/gtk3.css.tpl": "gtk3.css",
             "gtk/gtk4.css.tpl": "gtk4.css",
+            "gtk/gtk3-settings.ini.tpl": "gtk3-settings.ini",
+            "gtk/gtk4-settings.ini.tpl": "gtk4-settings.ini",
             "hyprland/colors.conf.tpl": "hyprland-colors.conf",
             "hyprland/kaizen-colors.lua.tpl": "kaizen-colors.lua",
             "swaync/style.css.tpl": "swaync-style.css",
@@ -202,6 +329,7 @@ class ThemeEngine:
         }
 
         errors = []
+        rendered_files = []
         for tpl_rel, gen_name in render_map.items():
             tpl_path = os.path.join(self.templates_dir, tpl_rel)
             if not os.path.exists(tpl_path):
@@ -239,18 +367,20 @@ class ThemeEngine:
                     elif "width" in target and orientation == "horizontal":
                         del target["width"]
 
+                    # A single layout-owned outer gap governs Hyprland and every
+                    # Waybar edge, eliminating the former 10px/8px mismatch.
                     for mk in ["margin-top", "margin-bottom", "margin-left", "margin-right"]:
-                        if mk in layout_data:
-                            target[mk] = layout_data[mk]
+                        target[mk] = outer_gap
                     content = json.dumps(wb_data, indent=4)
                 except Exception as e:
                     print(f"Warning: could not adjust waybar geometry: {e}", file=sys.stderr)
 
-            out_path = os.path.join(self.generated_dir, gen_name)
+            out_path = os.path.join(output_dir, gen_name)
             with open(out_path, "w", encoding="utf-8") as f:
                 f.write(content)
+            rendered_files.append(out_path)
 
-        return errors
+        return errors, rendered_files
 
     # ------------------------------------------------------------------
     # Auto-backup — save current live configs before overwriting
@@ -269,6 +399,8 @@ class ThemeEngine:
             (".config/hypr/hyprlock.conf", "hyprlock.conf"),
             (".config/gtk-3.0/gtk.css", "gtk3.css"),
             (".config/gtk-4.0/gtk.css", "gtk4.css"),
+            (".config/gtk-3.0/settings.ini", "gtk3-settings.ini"),
+            (".config/gtk-4.0/settings.ini", "gtk4-settings.ini"),
             (".config/fish/kaizen-prompt.fish", "kaizen-prompt.fish"),
             (".config/cava/config", "cava-config"),
             (".config/hypr/kaizen-colors.conf", "hyprland-colors.conf"),
@@ -320,6 +452,8 @@ class ThemeEngine:
             "hyprlock.conf": ".config/hypr/hyprlock.conf",
             "gtk3.css": ".config/gtk-3.0/gtk.css",
             "gtk4.css": ".config/gtk-4.0/gtk.css",
+            "gtk3-settings.ini": ".config/gtk-3.0/settings.ini",
+            "gtk4-settings.ini": ".config/gtk-4.0/settings.ini",
             "kaizen-prompt.fish": ".config/fish/kaizen-prompt.fish",
         }
 
@@ -381,6 +515,8 @@ class ThemeEngine:
             ("hyprlock.conf", ".config/hypr/hyprlock.conf"),
             ("gtk3.css", ".config/gtk-3.0/gtk.css"),
             ("gtk4.css", ".config/gtk-4.0/gtk.css"),
+            ("gtk3-settings.ini", ".config/gtk-3.0/settings.ini"),
+            ("gtk4-settings.ini", ".config/gtk-4.0/settings.ini"),
             ("kaizen-prompt.fish", ".config/fish/kaizen-prompt.fish"),
             ("cava-config", ".config/cava/config"),
             ("hyprland-colors.conf", ".config/hypr/kaizen-colors.conf"),
@@ -391,51 +527,38 @@ class ThemeEngine:
         ]
 
         for gen_name, dst_rel in links:
-            src = os.path.join(self.generated_dir, gen_name)
-            dst = os.path.join(home, dst_rel)
-            if os.path.exists(src):
-                os.makedirs(os.path.dirname(dst), exist_ok=True)
-                if os.path.islink(dst) or os.path.exists(dst):
-                    os.remove(dst)
-                try:
-                    os.symlink(src, dst)
-                except OSError:
-                    shutil.copy2(src, dst)
+            self._link_generated(gen_name, dst_rel)
 
         # SDDM requires root — deploy via privileged script
         self._deploy_sddm()
 
+    def _link_generated(self, gen_name, dst_rel):
+        src = os.path.join(self.generated_dir, gen_name)
+        dst = os.path.join(os.path.expanduser("~"), dst_rel)
+        if os.path.exists(src):
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            if os.path.islink(dst) or os.path.exists(dst):
+                os.remove(dst)
+            try:
+                os.symlink(src, dst)
+            except OSError:
+                shutil.copy2(src, dst)
+
     # ------------------------------------------------------------------
-    # Deploy SDDM theme (requires root via pkexec)
+    # Deploy SDDM theme through its dedicated Polkit action
     # ------------------------------------------------------------------
     def _deploy_sddm(self):
-        """Copy generated SDDM Main.qml to /usr/share/sddm/themes/corners/ via pkexec."""
+        """Copy generated SDDM files through Kaizen's scoped Polkit helper."""
         gen_qml = os.path.join(self.generated_dir, "sddm-Main.qml")
         gen_conf = os.path.join(self.generated_dir, "sddm-theme.conf")
-        script = os.path.join(self.base_dir, "bin", "kaizen-sddm-deploy.sh")
 
         if not os.path.exists(gen_qml):
-            return  # No SDDM template rendered
+            return False
 
-        if not os.path.exists(script):
-            os.makedirs(os.path.dirname(script), exist_ok=True)
-            with open(script, "w") as f:
-                f.write("#!/bin/bash\n")
-                f.write('# Kaizen SDDM Deploy — copies themed QML + components to SDDM theme dir\n')
-                f.write('THEME_DIR="/usr/share/sddm/themes/corners"\n')
-                f.write('GEN_DIR="$1"\n')
-                f.write('TPL_DIR="$2"\n')
-                f.write('\n')
-                f.write('cp "$GEN_DIR/sddm-Main.qml" "$THEME_DIR/Main.qml" || exit 1\n')
-                f.write('if [ -f "$GEN_DIR/sddm-theme.conf" ]; then\n')
-                f.write('  cp "$GEN_DIR/sddm-theme.conf" "$THEME_DIR/theme.conf"\n')
-                f.write('fi\n')
-                f.write('# Copy components\n')
-                f.write('if [ -d "$TPL_DIR/sddm/components" ]; then\n')
-                f.write('  cp -r "$TPL_DIR/sddm/components/"* "$THEME_DIR/components/"\n')
-                f.write('fi\n')
-                f.write('echo "SDDM theme deployed successfully."\n')
-            os.chmod(script, 0o755)
+        helper = "/usr/lib/kaizen/kaizen-privileged"
+        if not os.path.exists(helper):
+            print("  ⚠ SDDM deploy skipped: install Kaizen's Polkit helper first")
+            return False
 
         tpl_dir = self.templates_dir
         try:
@@ -444,24 +567,37 @@ class ThemeEngine:
                 capture_output=True, timeout=3
             )
             if agent_check.returncode != 0:
-                return
+                print("  ⚠ SDDM deploy skipped: no Polkit authentication agent")
+                return False
         except Exception:
             pass
 
         try:
             result = subprocess.run(
-                ["pkexec", script, self.generated_dir, tpl_dir],
+                ["pkexec", "--disable-internal-agent", "--action-id",
+                 "io.github.kaizen.sddm.deploy", helper, "sddm-deploy",
+                 self.generated_dir, tpl_dir],
                 capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
-                print("  ✅ SDDM theme deployed (via pkexec)")
-        except Exception:
-            pass
+                print("  ✅ SDDM theme deployed (via Kaizen Polkit action)")
+                return True
+            print(f"  ⚠ SDDM deploy failed: {result.stderr.strip() or result.stdout.strip()}")
+        except Exception as exc:
+            print(f"  ⚠ SDDM deploy failed: {exc}")
+        return False
 
     # ------------------------------------------------------------------
     # Reload applications after theme change
     # ------------------------------------------------------------------
-    def _reload_applications(self):
+    def _reload_applications(self, context=None):
+        context = context or {}
+        icon_theme = context.get("icon_theme", "Adwaita")
+        cursor_theme = context.get("cursor_theme", "Adwaita")
+        font_name = context.get("font_name", "Cantarell 11")
+        prefer_dark = context.get("prefer_dark_theme", "1")
+        gtk_theme_val = context.get("gtk_theme", "Adwaita-dark")
+
         cmds = [
             # Waybar: try SIGUSR2 for hot-reload first, fallback to restart
             "killall -SIGUSR2 waybar 2>/dev/null || (killall waybar 2>/dev/null; sleep 0.3; waybar &)",
@@ -469,8 +605,12 @@ class ThemeEngine:
             "swaync-client -R 2>/dev/null",
             "killall -USR1 kitty 2>/dev/null",
             "kitty @ set-colors -a -a ~/.config/kitty/theme.conf 2>/dev/null",
-            "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null",
-            "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' 2>/dev/null",
+            f"gsettings set org.gnome.desktop.interface color-scheme \"{'prefer-dark' if str(prefer_dark) == '1' else 'default'}\" 2>/dev/null",
+            f"gsettings set org.gnome.desktop.interface gtk-theme '{gtk_theme_val}' 2>/dev/null",
+            f"gsettings set org.gnome.desktop.interface icon-theme '{icon_theme}' 2>/dev/null",
+            f"gsettings set org.gnome.desktop.interface cursor-theme '{cursor_theme}' 2>/dev/null",
+            f"gsettings set org.gnome.desktop.interface font-name '{font_name}' 2>/dev/null",
+            "command -v thunar >/dev/null 2>&1 && if hyprctl clients -j 2>/dev/null | grep -q '\"class\": \"thunar\"'; then killall -q thunar; thunar >/dev/null 2>&1 & else killall -q thunar; thunar --daemon >/dev/null 2>&1 & fi",
         ]
         for cmd in cmds:
             try:
@@ -484,7 +624,7 @@ class ThemeEngine:
     def _save_state(self, key, value):
         path = os.path.join(self.state_dir, key)
         with open(path, "w") as f:
-            f.write(value)
+            f.write(value.rstrip("\n") + "\n")
 
     def _read_state(self, key):
         path = os.path.join(self.state_dir, key)

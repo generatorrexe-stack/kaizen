@@ -5,6 +5,7 @@
     "orientation": "vertical",
     "layer": "top",
     "width": 48,
+    "outer_gap": 8,
     "margin-top": 8,
     "margin-left": 0,
     "margin-right": 8,

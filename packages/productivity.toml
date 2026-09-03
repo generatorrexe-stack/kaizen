@@ -1,0 +1,76 @@
+[category]
+name = "Productividad y Navegación"
+icon = "applications-office"
+description = "Comunicación, gestión personal y navegadores web"
+
+[[apps]]
+id = "discord"
+name = "Discord"
+package = "discord"
+aur = false
+depends = []
+description = "Plataforma de voz, video y chat de texto"
+icon = "discord"
+
+[[apps]]
+id = "telegram"
+name = "Telegram"
+package = "telegram-desktop"
+aur = false
+depends = []
+description = "Cliente de mensajería instantánea seguro y rápido"
+icon = "telegram"
+
+[[apps]]
+id = "obsidian"
+name = "Obsidian"
+package = "obsidian"
+aur = false
+depends = []
+description = "Base de conocimiento basada en archivos Markdown locales"
+icon = "obsidian"
+
+[[apps]]
+id = "thunar"
+name = "Thunar"
+package = "thunar"
+aur = false
+depends = []
+description = "Gestor de archivos ligero para XFCE y Wayland"
+icon = "system-file-manager"
+
+[[apps]]
+id = "firefox"
+name = "Firefox"
+package = "firefox"
+aur = false
+depends = []
+description = "Navegador web de código abierto con protección de privacidad"
+icon = "firefox"
+
+[[apps]]
+id = "brave"
+name = "Brave"
+package = "brave-bin"
+aur = true
+depends = []
+description = "Navegador rápido con bloqueo de anuncios integrado"
+icon = "brave-desktop"
+
+[[apps]]
+id = "google-chrome"
+name = "Google Chrome"
+package = "google-chrome"
+aur = true
+depends = []
+description = "El navegador estándar de Google"
+icon = "google-chrome"
+
+[[apps]]
+id = "zen-browser"
+name = "Zen Browser"
+package = "zen-browser-bin"
+aur = true
+depends = []
+description = "Navegador Firefox moderno con pestañas verticales y workspaces"
+icon = "zen-browser"

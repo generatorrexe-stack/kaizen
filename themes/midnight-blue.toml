@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Midnight Blue"
 author = "Kaizen AI"
@@ -17,3 +19,16 @@ blue     = "#1E90FF"
 purple   = "#9370DB"
 cyan     = "#00FFFF"
 border   = "#1E90FF"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

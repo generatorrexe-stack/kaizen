@@ -1,0 +1,11 @@
+schema_version = 1
+name = "Rojo chaisawman"
+created_at = "2026-09-02T17:13:46"
+
+[preset]
+theme_id = "blood-moon"
+wallpaper_path = "/home/wonyoung/.local/share/kaizen/wallpapers/library/chainsaw_man_by_fauzi1998_dfh2ap9.png"
+layout_id = "left"
+icon_theme = "Adwaita"
+cursor_theme = "Adwaita"
+cursor_size = 24

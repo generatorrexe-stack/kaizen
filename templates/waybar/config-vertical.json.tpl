@@ -4,9 +4,9 @@
         "position": "left",
         "width": 48,
         "spacing": 0,
-        "margin-top": 8,
-        "margin-bottom": 8,
-        "margin-left": 8,
+        "margin-top": {{outer_gap}},
+        "margin-bottom": {{outer_gap}},
+        "margin-left": {{outer_gap}},
         "margin-right": 0,
 
         "modules-left": ["group/top"],

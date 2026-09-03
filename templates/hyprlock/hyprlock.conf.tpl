@@ -11,7 +11,7 @@ general {
 
 background {
   monitor =
-  path = /home/wonyoung/Documents/wallpapers/wallpaper1.jpg
+  path = {{wallpaper_path}}
   blur_passes = 4
   blur_size = 6
   noise = 0.02

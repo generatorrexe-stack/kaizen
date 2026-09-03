@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Synthwave Retro"
 author = "Kaizen AI"
@@ -17,3 +19,16 @@ blue     = "#9ccfd8"
 purple   = "#c4a7e7"
 cyan     = "#ebbcba"
 border   = "#fe4450"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Rojo Negro Blanco"
 author = "Kaizen Curated"
@@ -17,3 +19,16 @@ blue     = "#ffffff"
 purple   = "#880000"
 cyan     = "#ffaaaa"
 border   = "#ff0000"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

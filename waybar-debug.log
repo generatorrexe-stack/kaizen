@@ -1,0 +1,117 @@
+[2026-09-02 19:43:57.465] [info] Using configuration file /home/wonyoung/.config/waybar/config
+[2026-09-02 19:43:57.467] [info] Discovered appearance 'dark'
+[2026-09-02 19:43:57.467] [info] Using CSS file /home/wonyoung/.config/waybar/style.css
+[2026-09-02 19:43:57.470] [debug] Output detection done: eDP-1 (AU Optronics 0x18B8 0x0000FFA1)
+[2026-09-02 19:43:57.475] [info] Hyprland IPC starting
+[2026-09-02 19:43:57.476] [debug] window-rewrite is not defined or is not an object, using default rules.
+[2026-09-02 19:43:57.476] [trace] Current monitor ID: 0
+[2026-09-02 19:43:57.476] [debug] Initializing workspaces
+[2026-09-02 19:43:57.477] [debug] Initializing persistent workspaces
+[2026-09-02 19:43:57.477] [info] Loading persistent workspaces from Waybar config
+[2026-09-02 19:43:57.477] [trace] Parsing persistent workspace config: * => 5
+
+[2026-09-02 19:43:57.477] [debug] Creating 5 persistent workspaces for monitor eDP-1
+[2026-09-02 19:43:57.477] [trace] Creating persistent workspace: 1 on monitor eDP-1
+[2026-09-02 19:43:57.477] [trace] Creating persistent workspace: 2 on monitor eDP-1
+[2026-09-02 19:43:57.477] [trace] Creating persistent workspace: 3 on monitor eDP-1
+[2026-09-02 19:43:57.477] [trace] Creating persistent workspace: 4 on monitor eDP-1
+[2026-09-02 19:43:57.477] [trace] Creating persistent workspace: 5 on monitor eDP-1
+[2026-09-02 19:43:57.477] [info] Loading persistent workspaces from Hyprland workspace rules
+[2026-09-02 19:43:57.480] [debug] network: new default route via 192.168.241.193 on if2 metric 600
+[2026-09-02 19:43:57.480] [debug] network: wlo1, new addr 192.168.241.129/24
+[2026-09-02 19:43:57.480] [debug] network: wlo1, new addr 192.168.241.129/24
+[2026-09-02 19:43:57.482] [debug] [wireplumber]: preparing object manager: 'Audio/Sink'
+[2026-09-02 19:43:57.482] [debug] [wireplumber]: connecting to pipewire: 'Audio/Sink'...
+[2026-09-02 19:43:57.482] [debug] [wireplumber]: Audio/Sink connected!
+[2026-09-02 19:43:57.482] [debug] [wireplumber]: loading default nodes api module
+[2026-09-02 19:43:57.482] [debug] battery: worker interval is 60000
+[2026-09-02 19:43:57.487] [debug] GTK widget tree:
+window#waybar.background.top.eDP-1..mode-default:dir(ltr)
+  decoration:dir(ltr)
+  box.horizontal:dir(ltr)
+    box.horizontal.modules-left:dir(ltr)
+      widget:dir(ltr)
+        box#left.horizontal:dir(ltr)
+          widget:dir(ltr)
+            label#custom-arch.module:dir(ltr)
+          widget:dir(ltr)
+            label#mpris.module:dir(ltr)
+          widget:dir(ltr)
+            box#window.horizontal.module:dir(ltr)
+              image:dir(ltr)
+              label:dir(ltr)
+    box.horizontal.modules-center:dir(ltr)
+      widget:dir(ltr)
+        box#workspaces.horizontal.module:dir(ltr)
+    box.horizontal.modules-right:dir(ltr)
+      widget:dir(ltr)
+        box#right.horizontal:dir(ltr)
+          widget:dir(ltr)
+            label#clock.module:dir(ltr)
+          widget:dir(ltr)
+            label#network.module:dir(ltr)
+          widget:dir(ltr)
+            label#memory.module:dir(ltr)
+          widget:dir(ltr)
+            label#cpu.module:dir(ltr)
+          widget:dir(ltr)
+            label#temperature.module:dir(ltr)
+          widget:dir(ltr)
+            label#wireplumber.module:dir(ltr)
+          widget:dir(ltr)
+            label#battery.module:dir(ltr)
+      widget:dir(ltr)
+        box#tray.horizontal.module:dir(ltr)
+
+[2026-09-02 19:43:57.493] [debug] Creating workspace 2
+[2026-09-02 19:43:57.493] [debug] Creating workspace 3
+[2026-09-02 19:43:57.494] [debug] Creating workspace 1
+[2026-09-02 19:43:57.494] [debug] Creating workspace 2
+[2026-09-02 19:43:57.494] [debug] Set config persistency of workspace 2 to: true
+[2026-09-02 19:43:57.494] [debug] Creating workspace 3
+[2026-09-02 19:43:57.494] [debug] Set config persistency of workspace 3 to: true
+[2026-09-02 19:43:57.494] [debug] Creating workspace 4
+[2026-09-02 19:43:57.494] [debug] Creating workspace 5
+[2026-09-02 19:43:57.495] [trace] Selecting icon for workspace 1
+[2026-09-02 19:43:57.495] [trace] Selecting icon for workspace 2
+[2026-09-02 19:43:57.495] [trace] Selecting icon for workspace 3
+[2026-09-02 19:43:57.495] [trace] Selecting icon for workspace 4
+[2026-09-02 19:43:57.495] [trace] Selecting icon for workspace 5
+Discharging
+[2026-09-02 19:43:57.609] [info] Bar configured (width: 1900, height: 36) for output: eDP-1
+
+** (waybar:33495): WARNING **: 19:43:57.613: Status Notifier Item with bus name ':1.24' and object path '/org/ayatana/NotificationItem/nm_applet' is already registered
+[2026-09-02 19:43:57.614] [debug] hyprland IPC received openlayer>>waybar
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.AttentionAccessibleDesc = ''
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.AttentionIconName = ''
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.Category = 'SystemServices'
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.IconAccessibleDesc = 'Wi-Fi network connection “Galaxy A30sD5B5” active: Galaxy A30sD5B5 (59%)'
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.IconName = 'nm-signal-50'
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.IconThemePath = ''
+[2026-09-02 19:43:57.615] [trace] Set tray item property: :1.24.Id = 'nm-applet'
+[2026-09-02 19:43:57.615] [debug] SNI tray id: nm-applet
+[2026-09-02 19:43:57.615] [trace] Set tray item property: nm-applet.Menu = '/org/ayatana/NotificationItem/nm_applet/Menu'
+[2026-09-02 19:43:57.616] [trace] Set tray item property: nm-applet.Status = 'Active'
+[2026-09-02 19:43:57.616] [trace] Set tray item property: nm-applet.Title = 'Network'
+[2026-09-02 19:43:57.616] [trace] Set tray item property: nm-applet.XAyatanaLabel = ''
+[2026-09-02 19:43:57.616] [trace] Set tray item property: nm-applet.XAyatanaLabelGuide = ''
+[2026-09-02 19:43:57.616] [trace] Set tray item property: nm-applet.XAyatanaOrderingIndex = 0
+[2026-09-02 19:43:57.655] [debug] Received SIGCHLD in signalThread
+[2026-09-02 19:43:57.666] [debug] [wireplumber]: callback loading default node api module
+[2026-09-02 19:43:57.666] [debug] [wireplumber]: loaded default nodes api
+[2026-09-02 19:43:57.666] [debug] [wireplumber]: loading mixer api module
+[2026-09-02 19:43:57.680] [debug] [wireplumber]: loaded mixer API
+[2026-09-02 19:43:57.680] [debug] [wireplumber]: activating plugins
+[2026-09-02 19:43:57.680] [debug] [wireplumber]: onPluginActivated: mixer-api
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: onPluginActivated: default-nodes-api
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: onObjectManagerInstalled
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: updating volume
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: updating 'Audio/Sink' node name with node.id 95
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: Updating 'Audio/Sink' node name to: Speaker
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: updating source volume
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: updating source name with node.id 61
+[2026-09-02 19:43:57.682] [debug] [wireplumber]: Updating source name to: Digital Microphone
+[2026-09-02 19:43:58.835] [debug] hyprland IPC received activewindow>>Apache NetBeans IDE 30,JavaApplication1 - Apache NetBeans IDE 30
+[2026-09-02 19:43:58.836] [debug] hyprland IPC received activewindowv2>>55e1db4be370
+[2026-09-02 19:43:59.288] [debug] hyprland IPC received activewindow>>antigravity-ide,kaizen - Antigravity IDE - Implementation Plan
+[2026-09-02 19:43:59.289] [debug] hyprland IPC received activewindowv2>>55e1dae80740

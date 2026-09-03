@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Gruvbox Dark"
 author = "Kaizen"
@@ -17,3 +19,16 @@ blue     = "#83a598"
 purple   = "#d3869b"
 cyan     = "#8ec07c"
 border   = "#fe8019"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

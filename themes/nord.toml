@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Nord"
 author = "Kaizen"
@@ -17,3 +19,16 @@ blue     = "#5e81ac"
 purple   = "#b48ead"
 cyan     = "#8fbcbb"
 border   = "#88c0d0"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

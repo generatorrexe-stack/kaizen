@@ -47,7 +47,7 @@ class LayoutEngine:
 
         # 1. Save active layout state
         with open(os.path.join(self.state_dir, "current_layout"), "w") as f:
-            f.write(layout_id)
+            f.write(layout_id.rstrip("\n") + "\n")
 
         # 2. Re-render Waybar templates via ThemeEngine with specialized architecture
         from engine.theme_engine import ThemeEngine

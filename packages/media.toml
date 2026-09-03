@@ -1,0 +1,40 @@
+[category]
+name = "Multimedia"
+icon = "applications-multimedia"
+description = "Reproductores, streaming, grabación y diseño"
+
+[[apps]]
+id = "spotify"
+name = "Spotify"
+package = "spotify"
+aur = true
+depends = []
+description = "Servicio de música en streaming"
+icon = "spotify"
+
+[[apps]]
+id = "mpv"
+name = "MPV"
+package = "mpv"
+aur = false
+depends = []
+description = "Reproductor de video de alto rendimiento para terminal y GUI"
+icon = "mpv"
+
+[[apps]]
+id = "obs-studio"
+name = "OBS Studio"
+package = "obs-studio"
+aur = false
+depends = []
+description = "Grabación de pantalla y transmisiones en vivo"
+icon = "obs"
+
+[[apps]]
+id = "gimp"
+name = "GIMP"
+package = "gimp"
+aur = false
+depends = []
+description = "Editor de imágenes profesional de código abierto"
+icon = "gimp"

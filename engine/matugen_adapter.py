@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+from engine.theme_schema import CURRENT_THEME_SCHEMA_VERSION
 
 try:
     from PIL import Image
@@ -10,7 +11,7 @@ except ImportError:
 
 class MatugenAdapter:
     def __init__(self, base_dir=None):
-        self.base_dir = base_dir or os.path.expanduser("~/.config/kaizen")
+        self.base_dir = base_dir or os.path.expanduser("~/.local/share/kaizen")
         self.themes_dir = os.path.join(self.base_dir, "themes")
 
     def generate_theme_from_image(self, image_path, theme_name=None):
@@ -23,7 +24,9 @@ class MatugenAdapter:
 
         colors = self._extract_colors(image_path)
 
-        theme_content = f"""[meta]
+        theme_content = f"""schema_version = {CURRENT_THEME_SCHEMA_VERSION}
+
+[meta]
 name = "Auto: {base_name.title()}"
 author = "Kaizen Auto-Matugen"
 description = "Auto-generated color palette from wallpaper: {base_name}"
@@ -42,6 +45,19 @@ blue     = "{colors.get('blue', '#60a5fa')}"
 purple   = "{colors.get('purple', '#c084fc')}"
 cyan     = "{colors.get('cyan', '#22d3ee')}"
 border   = "{colors.get('accent', '#38bdf8')}"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"
 """
 
         target_file = os.path.join(self.themes_dir, f"{theme_name}.toml")

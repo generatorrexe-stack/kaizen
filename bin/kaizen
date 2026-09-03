@@ -18,7 +18,8 @@ def print_help():
 🏯 KAIZEN — Hyprland Customization Ecosystem
 
 Usage:
-  kaizen apply theme <theme-id>            Apply color palette theme
+  kaizen apply theme <theme-id> --dry-run  Render a non-invasive preview
+  kaizen apply theme <theme-id> --confirm  Apply color palette theme
   kaizen apply layout <layout-id>          Apply Waybar layout preset (top|bottom|left|right)
   kaizen apply previous                    Rollback to previous theme
   kaizen wallpaper set <image-path>        Set wallpaper with swww transition
@@ -27,6 +28,10 @@ Usage:
   kaizen package list                      List software catalog status
   kaizen package install <pkg> [source]    Install software package (pacman|aur)
   kaizen package remove <pkg>              Remove software package
+  kaizen preset save <name> [--desc "..."] Save current state as a named preset
+  kaizen preset apply <name>               Apply a saved preset
+  kaizen preset list                       List all saved presets
+  kaizen preset delete <name>              Delete a saved preset
   kaizen rollback                          Restore configs from last auto-backup
   kaizen doctor                            Run diagnostics on your setup
   kaizen gui                               Launch Kaizen Hub GTK4 GUI
@@ -50,8 +55,21 @@ def main():
         elif sub == "theme":
             target = sys.argv[3]
             silent = "--silent" in sys.argv
+            dry_run = "--dry-run" in sys.argv
+            confirmed = "--confirm" in sys.argv
             engine = ThemeEngine(KAIZEN_BASE)
-            engine.apply_theme(target, silent=silent)
+            if dry_run:
+                engine.apply_theme(target, silent=silent, dry_run=True)
+            else:
+                if not confirmed:
+                    if not sys.stdin.isatty():
+                        print("Refusing to apply without confirmation. Use --confirm or --dry-run.")
+                        sys.exit(2)
+                    answer = input(f"Apply theme '{target}'? [y/N]: ").strip().lower()
+                    if answer not in ("y", "yes", "s", "si", "sí"):
+                        print("Aborted.")
+                        return
+                engine.apply_theme(target, silent=silent)
         elif sub == "layout":
             target = sys.argv[3]
             engine = LayoutEngine(KAIZEN_BASE)
@@ -104,6 +122,80 @@ def main():
                 print("Usage: kaizen package remove <pkg_name>")
                 sys.exit(1)
             p_engine.remove_package(sys.argv[3])
+
+    elif cmd == "preset":
+        if len(sys.argv) < 3:
+            print("Usage: kaizen preset <save|apply|list|delete> [name] [options]")
+            sys.exit(1)
+        from engine.preset_engine import PresetEngine
+        sub = sys.argv[2]
+        pe = PresetEngine(KAIZEN_BASE)
+
+        if sub == "save":
+            if len(sys.argv) < 4:
+                print("Usage: kaizen preset save <name> [--description \"text\"] [--overwrite]")
+                sys.exit(1)
+            name = sys.argv[3]
+            description = ""
+            overwrite = "--overwrite" in sys.argv
+            for i, arg in enumerate(sys.argv):
+                if arg in ("--description", "--desc") and i + 1 < len(sys.argv):
+                    description = sys.argv[i + 1]
+            try:
+                path = pe.save_preset(name, description=description, overwrite=overwrite)
+                print(f"💾 Preset '{name}' saved to {path}")
+            except FileExistsError as e:
+                print(f"⚠ {e}")
+                answer = input("Overwrite? [y/N]: ").strip().lower()
+                if answer in ("y", "yes", "si", "sí"):
+                    path = pe.save_preset(name, description=description, overwrite=True)
+                    print(f"💾 Preset '{name}' overwritten at {path}")
+                else:
+                    print("Aborted.")
+
+        elif sub == "apply":
+            if len(sys.argv) < 4:
+                print("Usage: kaizen preset apply <name> [--theme X] [--wallpaper Y] [--layout Z]")
+                sys.exit(1)
+            name = sys.argv[3]
+            overrides = {}
+            for i, arg in enumerate(sys.argv):
+                if arg == "--theme" and i + 1 < len(sys.argv):
+                    overrides["theme_id"] = sys.argv[i + 1]
+                elif arg == "--wallpaper" and i + 1 < len(sys.argv):
+                    overrides["wallpaper_path"] = sys.argv[i + 1]
+                elif arg == "--layout" and i + 1 < len(sys.argv):
+                    overrides["layout_id"] = sys.argv[i + 1]
+            pe.apply_preset(name, overrides=overrides if overrides else None)
+
+        elif sub == "list":
+            presets = pe.list_presets()
+            if not presets:
+                print("No presets saved yet. Use 'kaizen preset save <name>' to create one.")
+            else:
+                for p in presets:
+                    desc = f" — {p['description']}" if p['description'] else ""
+                    date = f" ({p['created_at']})" if p['created_at'] else ""
+                    print(f"  📋 {p['name']}{desc}{date}")
+
+        elif sub == "delete":
+            if len(sys.argv) < 4:
+                print("Usage: kaizen preset delete <name>")
+                sys.exit(1)
+            name = sys.argv[3]
+            answer = input(f"Delete preset '{name}'? [y/N]: ").strip().lower()
+            if answer in ("y", "yes", "si", "sí"):
+                try:
+                    pe.delete_preset(name)
+                    print(f"🗑️ Preset '{name}' deleted.")
+                except FileNotFoundError as e:
+                    print(f"❌ {e}")
+            else:
+                print("Aborted.")
+
+        else:
+            print(f"Unknown preset command: {sub}")
+            sys.exit(1)
 
     elif cmd == "rollback":
         engine = ThemeEngine(KAIZEN_BASE)

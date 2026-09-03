@@ -15,7 +15,7 @@ Kaizen resuelve esto proporcionando:
 - **Generación Algorítmica de Temas**: Extracción automática de paletas a partir de imágenes de fondo utilizando `matugen` y algoritmos de colorimetría adaptativa en Pillow.
 - **Gestión de Fondos con Transiciones**: Integración con el daemon `awww` / `swww` con transiciones animadas fluidas y biblioteca de miniaturas en caché.
 - **Disposiciones Dinámicas de Barra**: Control de geometría y posición (*top*, *bottom*, *left*, *right*) para Waybar.
-- **Gestión de Software**: Catálogo curado con detección en vivo del estado de instalación (`pacman -Qq`) e instalación vía `pacman` (con `pkexec`) o AUR (`yay`).
+- **Gestión de Software**: Catálogo curado con detección en vivo del estado de instalación (`pacman -Qq`) y acciones Polkit dedicadas de Kaizen para transacciones de sistema.
 - **Seguridad y Resiliencia**: Copias de seguridad automáticas con marcas de tiempo antes de cualquier modificación y soporte para rollback inmediato.
 
 ---
@@ -86,8 +86,12 @@ flowchart TD
 kaizen/
 ├── bin/                          # Puntos de entrada ejecutables y scripts
 │   ├── kaizen                    # Interfaz de Línea de Comandos (CLI)
-│   ├── kaizen-sddm-deploy.sh     # Despliegue de tema para SDDM vía pkexec
+│   ├── kaizen-sddm-deploy.sh     # Despliegue SDDM invocado por el helper Polkit
+│   ├── kaizen-privileged         # Helper root con operaciones Kaizen restringidas
+│   ├── kaizen-yay-auth           # Adaptador Polkit limitado para yay
 │   └── restore_state.sh          # Script de restauración de estado en el login
+├── polkit/
+│   └── io.github.kaizen.policy   # Acciones Polkit dedicadas
 ├── config/
 │   └── kaizen.toml               # Configuración central de rutas y daemons
 ├── engine/                       # Motores de procesamiento
@@ -141,7 +145,7 @@ El motor de temas es el núcleo orquestador de Kaizen:
 3. **Copia de Seguridad Automática**: Antes de realizar cualquier cambio en el sistema, guarda una copia de todos los archivos de configuración activos en `~/.config/kaizen-backups/auto/<timestamp>`. Mantiene un historial de hasta 20 respaldos.
 4. **Renderizado Seguro**: Itera por todas las plantillas de `templates/` sustituyendo las variables `{{variable}}`. Si se detecta algún marcador no resuelto, aborta la operación para evitar romper archivos del sistema.
 5. **Symlinking**: Crea enlaces simbólicos hacia las rutas de configuración activas de usuario (`~/.config/waybar/`, `~/.config/kitty/`, `~/.config/hypr/`, etc.).
-6. **Despliegue con Privilegios**: Para aplicaciones a nivel de sistema como SDDM, ejecuta `bin/kaizen-sddm-deploy.sh` mediante `pkexec`.
+6. **Despliegue con Privilegios**: Para SDDM usa la acción `io.github.kaizen.sddm.deploy`, que llama a un helper restringido de Kaizen.
 7. **Recarga en Caliente (*Hot-Reload*)**: Notifica a las aplicaciones abiertas mediante señales del sistema (`killall -SIGUSR2 waybar`, `hyprctl reload`, `swaync-client -R`, `killall -USR1 kitty`, `gsettings`).
 8. **Gestión de Historial**: Permite regresar al tema inmediatamente anterior (`apply_previous`) o revertir al último respaldo (`rollback`).
 
@@ -149,7 +153,9 @@ El motor de temas es el núcleo orquestador de Kaizen:
 - Mantiene la biblioteca de imágenes en `wallpapers/library/`.
 - Genera miniaturas en caché en `wallpapers/thumbnails/` a 320x180 px utilizando Pillow (PIL) o ImageMagick.
 - Aplica el fondo a través de `awww` / `swww` con transiciones configurables (`wipe`, `fade`, etc.).
-- Persiste la ruta absoluta del fondo actual en `state/current_wallpaper`.
+- Persiste la ruta absoluta del fondo actual en `state/current_wallpaper`, sincroniza
+  Hyprlock y prepara un asset para SDDM. `[wallpaper] lockscreen_path` y `sddm_path`
+  en el tema son overrides opcionales; sin ellos ambos heredan el fondo del escritorio.
 
 ### 4.3. Adaptador Matugen (`engine/matugen_adapter.py`)
 - Extrae la gama cromática de cualquier imagen utilizando la herramienta CLI `matugen` (Material You).
@@ -164,7 +170,37 @@ El motor de temas es el núcleo orquestador de Kaizen:
 ### 4.5. Motor de Paquetes (`engine/package_engine.py`)
 - Lee definiciones organizadas en `packages/categories/*.toml`.
 - Consulta el estado de instalación en tiempo real usando `pacman -Qq <pkg>`.
-- Permite instalar y desinstalar paquetes utilizando `pacman` (con elevación `pkexec`) o el gestor AUR `yay`.
+- Permite instalar y desinstalar paquetes mediante las acciones `io.github.kaizen.package.install` y `.remove`. `yay` continúa construyendo AUR sin privilegios y delega solamente sus transacciones `pacman -S/-R` al adaptador limitado de Kaizen.
+
+### 4.8. Polkit dedicado
+`install.sh` instala `polkit/io.github.kaizen.policy` en
+`/usr/share/polkit-1/actions/io.github.kaizen.policy` y el helper restringido en
+`/usr/lib/kaizen/kaizen-privileged` (junto al adaptador `kaizen-yay-auth`). Las acciones son `io.github.kaizen.sddm.deploy`,
+`io.github.kaizen.package.install` y `io.github.kaizen.package.remove`.
+
+Usan `auth_admin_keep`, cuya autorización temporal de Polkit es breve (la referencia de
+Polkit la describe como, por ejemplo, cinco minutos; no es persistente durante toda la
+sesión). El helper solo admite el deploy SDDM desde el directorio Kaizen del
+usuario y nombres de paquetes válidos; llama solo al script SDDM instalado y root-owned,
+nunca a programas proporcionados por quien llama.
+Tras actualizar Kaizen, vuelve a ejecutar `./install.sh` para reinstalar la política.
+
+### 4.9. Hooks
+Los hooks opcionales usan `hooks/pre_apply.sh` y `hooks/post_apply.sh` para operaciones
+globales, y `themes/<id>/hooks/pre_apply.sh` y `post_apply.sh` para un tema. El orden es:
+pre global → pre del tema → operación → post del tema → post global. Reciben
+`KAIZEN_THEME_ID`, `KAIZEN_PREVIOUS_THEME_ID`, `KAIZEN_HOOK_PHASE`, `KAIZEN_OPERATION` y
+`KAIZEN_BASE_DIR` (además de `KAIZEN_PRESET_ID` o `KAIZEN_PACKAGE_NAME` cuando aplica).
+Cada resultado, incluida una falla, se registra en `state/hooks.log`; los hooks son
+best-effort y no cancelan la operación principal.
+
+### 4.10. Esquema de temas
+El esquema actual es **v2**. La v2 formaliza las secciones `[icons]`, `[cursor]`,
+`[font]` y `[gtk]` introducidas con el theming GTK de primera clase; por eso no se
+considera v1. `ThemeEngine` migra en memoria temas v0/v1 añadiendo secciones y defaults
+compatibles, sin reescribir temas de terceros. Un `schema_version` futuro se advierte y
+se intenta cargar sin downgrade. `Doctor` muestra las mismas advertencias y Matugen
+siempre genera temas con `schema_version = 2`.
 
 ### 4.6. Diagnósticos y Salud (`engine/doctor.py`)
 Realiza una auditoría completa del entorno:
@@ -196,10 +232,10 @@ Aplicación nativa moderna en **GTK 4** con compatibilidad para **Libadwaita**:
 | **Kitty Terminal**| `kitty/theme.conf.tpl` | `~/.config/kitty/theme.conf` |
 | **Fuzzel Menu** | `fuzzel/fuzzel.ini.tpl` | `~/.config/fuzzel/fuzzel.ini` |
 | **SwayNC** | `swaync/style.css.tpl` | `~/.config/swaync/style.css` |
-| **Hyprlock** | `hyprlock/hyprlock.conf.tpl` | `~/.config/hypr/hyprlock.conf` |
+| **Hyprlock** | `hyprlock/hyprlock.conf.tpl` | `~/.config/hypr/hyprlock.conf` — sincronizado al cambiar wallpaper |
 | **GTK 3** | `gtk/gtk3.css.tpl` | `~/.config/gtk-3.0/gtk.css` |
 | **GTK 4** | `gtk/gtk4.css.tpl` | `~/.config/gtk-4.0/gtk.css` |
-| **SDDM Login** | `sddm/Main.qml.tpl` / `theme.conf.tpl` | `/usr/share/sddm/themes/corners/` |
+| **SDDM Login** | `sddm/Main.qml.tpl` / `theme.conf.tpl` | `/usr/share/sddm/themes/corners/` — wallpaper sincronizado vía deploy Polkit |
 | **Btop** | `btop/kaizen.theme.tpl` | `~/.config/btop/themes/kaizen.theme` |
 | **Starship** | `starship/starship.toml.tpl` | `~/.config/starship.toml` |
 | **Fish Shell** | `fish/kaizen-prompt.fish.tpl` | `~/.config/fish/kaizen-prompt.fish` |

@@ -1,0 +1,87 @@
+[category]
+name = "Desarrollo y Seguridad"
+icon = "applications-development"
+description = "Editores, contenedores y herramientas de auditoría para desarrollo"
+
+[[apps]]
+id = "vscode"
+name = "Visual Studio Code"
+package = "visual-studio-code-bin"
+aur = true
+depends = []
+description = "Editor de código ligero y extensible de Microsoft"
+icon = "code"
+
+[[apps]]
+id = "neovim"
+name = "Neovim"
+package = "neovim"
+aur = false
+depends = []
+description = "Editor de texto en terminal ultra rápido y extensible"
+icon = "nvim"
+
+[[apps]]
+id = "docker"
+name = "Docker"
+package = "docker"
+aur = false
+depends = []
+requires_service = "docker.service"
+post_install_hook = "hooks/apps/docker-post-install.sh"
+description = "Plataforma de contenedores para desarrollo y despliegue"
+icon = "docker"
+
+[[apps]]
+id = "postman"
+name = "Postman"
+package = "postman-bin"
+aur = true
+depends = []
+description = "Plataforma completa para pruebas y desarrollo de APIs"
+icon = "postman"
+
+[[apps]]
+id = "wireshark"
+name = "Wireshark"
+package = "wireshark-qt"
+aur = false
+depends = []
+description = "Analizador de protocolos de red e inspección de tráfico"
+icon = "wireshark"
+
+[[apps]]
+id = "burpsuite"
+name = "Burp Suite"
+package = "burpsuite"
+aur = true
+depends = []
+description = "Proxy interceptor avanzado para auditoría de aplicaciones web"
+icon = "burpsuite"
+
+[[apps]]
+id = "nmap"
+name = "Nmap"
+package = "nmap"
+aur = false
+depends = []
+description = "Escáner de red y auditoría de puertos"
+icon = "nmap"
+
+[[apps]]
+id = "metasploit"
+name = "Metasploit"
+package = "metasploit"
+aur = false
+depends = []
+description = "Framework de desarrollo y ejecución de exploits"
+icon = "metasploit"
+
+[[apps]]
+id = "john"
+name = "John the Ripper"
+package = "john"
+aur = false
+depends = []
+description = "Auditor y recuperador de contraseñas"
+icon = "security-high"

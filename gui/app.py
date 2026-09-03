@@ -13,6 +13,7 @@ from engine.layout_engine import LayoutEngine
 from engine.wallpaper_engine import WallpaperEngine
 from engine.package_engine import PackageEngine
 from engine.matugen_adapter import MatugenAdapter
+from engine.preset_engine import PresetEngine
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -38,6 +39,7 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
         self.wallpaper_engine = WallpaperEngine(base_dir)
         self.package_engine = PackageEngine(base_dir)
         self.matugen_adapter = MatugenAdapter(base_dir)
+        self.preset_engine = PresetEngine(base_dir)
 
         self._load_css()
         self._build_ui()
@@ -190,11 +192,171 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
         main_box.append(self.stack)
 
         # Build tabs
+        self._build_presets_tab()
         self._build_themes_tab()
         self._build_wallpapers_tab()
         self._build_layouts_tab()
         self._build_packages_tab()
         self._build_keybinds_tab()
+
+    # ================================================================
+    # PRESETS TAB
+    # ================================================================
+    def _build_presets_tab(self):
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_hexpand(True)
+        scroll.set_vexpand(True)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        box.set_margin_start(25)
+        box.set_margin_end(25)
+        box.set_margin_top(25)
+
+        header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
+        header = Gtk.Label(label="💾 Presets")
+        header.add_css_class("section-header")
+        header_box.append(header)
+
+        save_btn = Gtk.Button(label="➕ Guardar Estado Actual")
+        save_btn.add_css_class("apply-btn")
+        save_btn.connect("clicked", self._on_save_preset_dialog)
+        header_box.append(save_btn)
+        
+        box.append(header_box)
+
+        grid = Gtk.FlowBox()
+        grid.set_valign(Gtk.Align.START)
+        grid.set_max_children_per_line(2)
+        grid.set_min_children_per_line(1)
+        grid.set_selection_mode(Gtk.SelectionMode.NONE)
+        grid.set_homogeneous(True)
+        grid.set_column_spacing(15)
+        grid.set_row_spacing(15)
+        
+        self.preset_grid = grid
+        self._refresh_presets_grid()
+
+        box.append(grid)
+        scroll.set_child(box)
+        self.stack.add_titled(scroll, "presets", "💾 Presets")
+
+    def _refresh_presets_grid(self):
+        while child := self.preset_grid.get_first_child():
+            self.preset_grid.remove(child)
+
+        presets = self.preset_engine.list_presets()
+        for p in presets:
+            card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+            card.add_css_class("theme-card")
+
+            name_lbl = Gtk.Label(label=f"<b>{p['name']}</b>")
+            name_lbl.set_use_markup(True)
+            name_lbl.add_css_class("theme-name")
+            name_lbl.set_halign(Gtk.Align.START)
+            card.append(name_lbl)
+
+            if p.get("description"):
+                desc = Gtk.Label(label=p["description"])
+                desc.add_css_class("theme-desc")
+                desc.set_halign(Gtk.Align.START)
+                desc.set_wrap(True)
+                desc.set_max_width_chars(40)
+                card.append(desc)
+
+            details_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+            details_box.set_opacity(0.8)
+            t_id = p.get("preset", {}).get("theme_id", "none")
+            l_id = p.get("preset", {}).get("layout_id", "none")
+            details_box.append(Gtk.Label(label=f"🎨 Tema: {t_id}", halign=Gtk.Align.START))
+            details_box.append(Gtk.Label(label=f"📐 Layout: {l_id}", halign=Gtk.Align.START))
+            card.append(details_box)
+
+            btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+            apply_btn = Gtk.Button(label="Aplicar Preset")
+            apply_btn.add_css_class("apply-btn")
+            apply_btn.connect("clicked", self._on_apply_preset, p["id"])
+            btn_box.append(apply_btn)
+
+            del_btn = Gtk.Button(label="Borrar")
+            del_btn.add_css_class("rollback-btn")
+            del_btn.connect("clicked", self._on_delete_preset, p["id"])
+            btn_box.append(del_btn)
+
+            card.append(btn_box)
+            self.preset_grid.append(card)
+
+    def _on_save_preset_dialog(self, btn):
+        popover = Gtk.Popover()
+        popover.set_parent(btn)
+        
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        vbox.set_margin_start(10)
+        vbox.set_margin_end(10)
+        vbox.set_margin_top(10)
+        vbox.set_margin_bottom(10)
+
+        name_entry = Gtk.Entry(placeholder_text="Nombre del Preset")
+        vbox.append(name_entry)
+        
+        desc_entry = Gtk.Entry(placeholder_text="Descripción (Opcional)")
+        vbox.append(desc_entry)
+
+        def on_save_clicked(*args):
+            name = name_entry.get_text().strip()
+            desc = desc_entry.get_text().strip()
+            if name:
+                try:
+                    self.preset_engine.save_preset(name, desc)
+                    self._show_toast(f"✅ Preset '{name}' guardado")
+                    self._refresh_presets_grid()
+                    popover.popdown()
+                except Exception as e:
+                    self._show_toast(f"❌ Error al guardar: {e}")
+        
+        save_action_btn = Gtk.Button(label="Guardar")
+        save_action_btn.add_css_class("apply-btn")
+        save_action_btn.connect("clicked", on_save_clicked)
+        vbox.append(save_action_btn)
+
+        popover.set_child(vbox)
+        popover.popup()
+
+    def _on_apply_preset(self, btn, slug):
+        btn.set_label("⏳ Aplicando...")
+        btn.set_sensitive(False)
+
+        def do_apply():
+            try:
+                self.preset_engine.apply_preset(slug)
+                GLib.idle_add(self._on_preset_applied, btn, slug, True, "")
+            except Exception as e:
+                GLib.idle_add(self._on_preset_applied, btn, slug, False, str(e))
+
+        thread = threading.Thread(target=do_apply, daemon=True)
+        thread.start()
+
+    def _on_preset_applied(self, btn, slug, success, err_msg):
+        btn.set_label("Aplicar Preset")
+        btn.set_sensitive(True)
+        if success:
+            self._show_toast(f"✅ Preset '{slug}' aplicado!")
+            current = self.theme_engine.get_current_theme() or "none"
+            self.current_label.set_label(f"▸ {current}")
+            
+            if current:
+                self._on_theme_applied(current)
+            l_current = self.layout_engine.get_current_layout()
+            if l_current:
+                self._on_layout_applied(l_current)
+        else:
+            self._show_toast(f"❌ Error aplicando preset: {err_msg}")
+
+    def _on_delete_preset(self, btn, slug):
+        try:
+            self.preset_engine.delete_preset(slug)
+            self._show_toast(f"🗑 Preset '{slug}' eliminado")
+            self._refresh_presets_grid()
+        except Exception as e:
+            self._show_toast(f"❌ Error al borrar: {e}")
 
     # ================================================================
     # THEMES TAB
@@ -213,6 +375,18 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
         header.add_css_class("section-header")
         box.append(header)
 
+        self.preview_label = Gtk.Label(
+            label="Selecciona “Previsualizar” para renderizar el tema sin aplicarlo."
+        )
+        self.preview_label.set_halign(Gtk.Align.START)
+        self.preview_label.add_css_class("theme-desc")
+        box.append(self.preview_label)
+
+        self.preview_surface = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.preview_surface.set_margin_bottom(8)
+        self.preview_surface.set_visible(False)
+        box.append(self.preview_surface)
+
         grid = Gtk.FlowBox()
         grid.set_valign(Gtk.Align.START)
         grid.set_max_children_per_line(3)
@@ -225,6 +399,7 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
         current_theme = self.theme_engine.get_current_theme()
         themes = self.theme_engine.list_themes()
         self.theme_buttons = {}
+        self.theme_preview_boxes = {}
 
         for t in themes:
             card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -261,7 +436,18 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
                 swatch_box.append(swatch)
             card.append(swatch_box)
 
-            # Apply button
+            generated_preview_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+            generated_preview_box.set_visible(False)
+            card.append(generated_preview_box)
+            self.theme_preview_boxes[t["id"]] = generated_preview_box
+
+            # Preview and explicit apply are separate actions.
+            action_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+            preview_btn = Gtk.Button(label="Previsualizar")
+            preview_btn.add_css_class("apply-btn")
+            preview_btn.connect("clicked", self._on_preview_theme, t["id"])
+            action_box.append(preview_btn)
+
             is_active = (t["id"] == current_theme)
             btn_label = "✓ Activo" if is_active else "Aplicar"
             apply_btn = Gtk.Button(label=btn_label)
@@ -270,7 +456,8 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
                 apply_btn.add_css_class("apply-btn-active")
             apply_btn.connect("clicked", self._on_apply_theme, t["id"])
             self.theme_buttons[t["id"]] = (apply_btn, card)
-            card.append(apply_btn)
+            action_box.append(apply_btn)
+            card.append(action_box)
 
             grid.append(card)
 
@@ -313,6 +500,72 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
 
         thread = threading.Thread(target=do_apply, daemon=True)
         thread.start()
+
+    def _on_preview_theme(self, btn, theme_id):
+        """Render a theme in the preview directory and show generated GTK colors."""
+        btn.set_label("⏳ Renderizando...")
+        btn.set_sensitive(False)
+
+        def do_preview():
+            try:
+                preview = self.theme_engine.preview_theme(theme_id)
+                GLib.idle_add(self._show_theme_preview, preview, theme_id)
+            except Exception as e:
+                GLib.idle_add(self._show_toast, f"❌ Error de previsualización: {e}")
+            finally:
+                GLib.idle_add(btn.set_label, "Previsualizar")
+                GLib.idle_add(btn.set_sensitive, True)
+
+        threading.Thread(target=do_preview, daemon=True).start()
+
+    def _show_theme_preview(self, preview, theme_id):
+        """Display colors sourced from the freshly rendered GTK preview file."""
+        while child := self.preview_surface.get_first_child():
+            self.preview_surface.remove(child)
+
+        gtk_preview = os.path.join(preview["output_dir"], "gtk3.css")
+        generated_colors = {}
+        try:
+            with open(gtk_preview, "r", encoding="utf-8") as preview_file:
+                for line in preview_file:
+                    if line.startswith("@define-color "):
+                        _, name, color = line.rstrip(";\n").split(maxsplit=2)
+                        generated_colors[name] = color
+        except OSError as exc:
+            self._show_toast(f"❌ No se pudo leer el preview generado: {exc}")
+            return
+
+        preview_row = self._create_generated_preview_row(generated_colors)
+        self.preview_surface.append(preview_row)
+        card_preview = self.theme_preview_boxes.get(theme_id)
+        if card_preview is not None:
+            while child := card_preview.get_first_child():
+                card_preview.remove(child)
+            card_preview.append(Gtk.Label(label="Preview generado", halign=Gtk.Align.START))
+            card_preview.append(self._create_generated_preview_row(generated_colors))
+            card_preview.set_visible(True)
+        self.preview_surface.set_visible(True)
+        self.preview_label.set_label(
+            f"Preview real de {preview['name']} · generado en {preview['output_dir']} · aún no aplicado"
+        )
+
+    def _create_generated_preview_row(self, generated_colors):
+        """Build swatches from color definitions read out of rendered GTK CSS."""
+        preview_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        for label, key in (
+            ("Fondo", "theme_bg_color"),
+            ("Texto", "theme_fg_color"),
+            ("Selección", "theme_selected_bg_color"),
+            ("Texto selección", "theme_selected_fg_color"),
+        ):
+            color = generated_colors.get(key, "#555555")
+            swatch = Gtk.DrawingArea()
+            swatch.set_size_request(44, 28)
+            swatch.add_css_class("color-swatch")
+            swatch.set_draw_func(self._make_swatch_draw(color))
+            preview_row.append(Gtk.Label(label=label))
+            preview_row.append(swatch)
+        return preview_row
 
     def _on_theme_applied(self, theme_id):
         """Update UI after theme is applied."""
@@ -580,7 +833,7 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
 
         catalog = self.package_engine.get_catalog()
         for cat, data in catalog.items():
-            cat_lbl = Gtk.Label(label=f"<b>{cat}</b> — {data['description']}")
+            cat_lbl = Gtk.Label(label=f"<b>{data['name']}</b> — {data.get('description', '')}")
             cat_lbl.set_use_markup(True)
             cat_lbl.set_halign(Gtk.Align.START)
             cat_lbl.set_margin_top(10)
@@ -590,7 +843,7 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
                 row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
                 row.set_margin_start(15)
 
-                app_lbl = Gtk.Label(label=f"{app['name']} ({app['pkg']})")
+                app_lbl = Gtk.Label(label=f"{app['name']} ({app['package']})")
                 app_lbl.set_hexpand(True)
                 app_lbl.set_halign(Gtk.Align.START)
                 row.append(app_lbl)
@@ -603,13 +856,27 @@ class KaizenWindow(Adw.ApplicationWindow if HAS_ADW else Gtk.ApplicationWindow):
                 else:
                     btn = Gtk.Button(label="Instalar")
                     btn.add_css_class("apply-btn")
-                    btn.connect("clicked", lambda b, p=app["pkg"], s=app["source"]: self.package_engine.install_package(p, s))
+                    btn.connect("clicked", self._on_install_catalog_app, app["id"])
                     row.append(btn)
 
                 box.append(row)
 
         scroll.set_child(box)
         self.stack.add_titled(scroll, "packages", "📦 Apps Store")
+
+    def _on_install_catalog_app(self, button, app_id):
+        button.set_sensitive(False)
+        progress = Gtk.Label(label="Resolviendo dependencias…")
+        button.get_parent().append(progress)
+        def report(stage, detail):
+            labels = {"resolving": "Resolviendo deps", "downloading": "Descargando", "installing": "Instalando", "configuring": "Configurando", "ready": "Listo", "failed": "Error"}
+            GLib.idle_add(progress.set_label, f"{labels[stage]}: {detail}")
+        def work():
+            ok = self.package_engine.install_app(app_id, report)
+            GLib.idle_add(button.set_sensitive, True)
+            if ok:
+                GLib.idle_add(button.set_label, "✓ Instalado")
+        threading.Thread(target=work, daemon=True).start()
 
     # ================================================================
     # KEYBINDS TAB

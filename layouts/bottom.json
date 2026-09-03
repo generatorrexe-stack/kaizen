@@ -5,6 +5,7 @@
     "orientation": "horizontal",
     "layer": "top",
     "height": 36,
+    "outer_gap": 8,
     "margin-top": 0,
     "margin-left": 10,
     "margin-right": 10,

@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Golden Hour"
 author = "Kaizen AI"
@@ -17,3 +19,16 @@ blue     = "#6a9fb5"
 purple   = "#aa759f"
 cyan     = "#75b5aa"
 border   = "#f0a868"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

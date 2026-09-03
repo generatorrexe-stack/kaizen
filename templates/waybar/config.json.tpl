@@ -76,12 +76,13 @@
 
         "mpris": {
             "format": "󰎆  {status_icon} {dynamic}",
+            "format-paused": "󰎆  {status_icon} <i>{dynamic}</i>",
             "status-icons": {
                 "playing": "󰐊",
                 "paused": "󰏤",
                 "stopped": "󰓛"
             },
-            "dynamic-len": 25,
+            "dynamic-len": 40,
             "on-click": "playerctl play-pause"
         },
 

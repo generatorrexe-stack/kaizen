@@ -1,3 +1,5 @@
+schema_version = 2
+
 name = "Synthwave 84"
 slug = "synthwave"
 
@@ -15,3 +17,16 @@ blue = "#03edf9"
 purple = "#ff7edb"
 cyan = "#36f9f6"
 magenta = "#f92aad"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"

@@ -1,0 +1,12 @@
+schema_version = 1
+name = "Mi Setup Cyberpunk"
+description = "Neon setup con Karina wallpaper"
+created_at = "2026-09-02T16:21:24"
+
+[preset]
+theme_id = "cyberpunk-neon"
+wallpaper_path = "/home/wonyoung/.local/share/kaizen/wallpapers/library/karina-aespa-4k-wallpaper-uhdpaper.com-67@5@m.jpg"
+layout_id = "top"
+icon_theme = "Adwaita"
+cursor_theme = "Adwaita"
+cursor_size = 24

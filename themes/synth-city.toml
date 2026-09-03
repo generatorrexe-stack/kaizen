@@ -1,3 +1,5 @@
+schema_version = 2
+
 [meta]
 name = "Synth City"
 author = "Kaizen Curated"
@@ -17,3 +19,16 @@ blue     = "#05d9e8"
 purple   = "#d1f7ff"
 cyan     = "#01ffe5"
 border   = "#ff2a6d"
+
+[icons]
+icon_theme = "Adwaita"
+
+[cursor]
+cursor_theme = "Adwaita"
+cursor_size = 24
+
+[font]
+font_name = "Cantarell 11"
+
+[gtk]
+prefer_dark_theme = "1"
